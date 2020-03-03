@@ -107,6 +107,7 @@ class Commands(object):
             message = 'Вы уже зарегистрированы. Начните искать товары, просто набрав нужное название!'
             reply_markup=ReplyKeyboardRemove()
         else:
+            print('start registrtion')
             message = '*Регистрация*'
             message += '\nДля регистрации вам нужно будет указать телефон и электронную почту. '
             message += 'После регистрации вы получите пароль.'
@@ -125,7 +126,7 @@ class Commands(object):
         Шаг 2: Поле для электропочты
         """
         phone_number = update.message.contact.phone_number
-
+        print('phone_number')
         if phone_number is not None:
             if Profile.objects.filter(phone=phone_number):
                 # Данный номер уже существует в системе
@@ -148,6 +149,7 @@ class Commands(object):
         Шаг 3: Сохранение результата, выдаётся пароль
         """
         text = update.message.text.lower()
+        print('text')
         if validate_email(text):
             #'Валидация почты успешна'
             if User.objects.filter(email=text):
