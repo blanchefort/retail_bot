@@ -126,7 +126,7 @@ class Commands(object):
         Шаг 2: Поле для электропочты
         """
         phone_number = update.message.contact.phone_number
-        print('phone_number')
+        print(phone_number)
         if phone_number is not None:
             if Profile.objects.filter(phone=phone_number):
                 # Данный номер уже существует в системе
@@ -149,8 +149,9 @@ class Commands(object):
         Шаг 3: Сохранение результата, выдаётся пароль
         """
         text = update.message.text.lower()
-        print('text')
+        print(text)
         if validate_email(text):
+            print('validate_email')
             #'Валидация почты успешна'
             if User.objects.filter(email=text):
                 message = 'Такой адрес электронной почты уже зарегистрирован в системе. Попробуйте заново с другой почтой: /register'
@@ -167,6 +168,8 @@ class Commands(object):
                 new_user.last_name = update.message.chat.last_name or ''
                 new_user.first_name = update.message.chat.first_name or ''
                 new_user.save()
+
+                print(new_user)
 
                 new_user.profile.type = 1
                 new_user.profile.phone = context.user_data['phone_number']
