@@ -1,0 +1,140 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'seller/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+
+            <!-- Quick Action Toolbar Starts-->
+            <div class="row quick-action-toolbar">
+              <div class="col-md-12 grid-margin">
+                <div class="card">
+                  <div class="card-header d-block d-md-flex">
+                    <h5 class="mb-0">Статистика заказанных товаров</h5>
+                  </div>
+                  <div class="d-md-flex row m-0 quick-action-btns" role="group" aria-label="Quick action buttons">
+                    <div class="col-sm-6 col-md-3 p-3 text-center btn-wrapper">
+                      <a href="" class="btn px-0"> <i class="icon-user mr-2"></i> Новые заказы: {{new_orders_count}}</a>
+                    </div>
+                    <div class="col-sm-6 col-md-3 p-3 text-center btn-wrapper">
+                      <a href="" class="btn px-0"><i class="icon-docs mr-2"></i> Ожидают оплату: {{wait_orders_count}}</a>
+                    </div>
+                    <div class="col-sm-6 col-md-3 p-3 text-center btn-wrapper">
+                      <a href="" class="btn px-0"><i class="icon-folder mr-2"></i> Завершённые: {{ready_orders_count}}</a>
+                    </div>
+                    <div class="col-sm-6 col-md-3 p-3 text-center btn-wrapper">
+                      <a href="" class="btn px-0"><i class="icon-book-open mr-2"></i> Всего: {{total_orders_count}}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Quick Action Toolbar Ends-->
+            {% if new_order %}
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Заявки, ожидающие выставления счёта</h4>
+                    <p>Здесь представлены все новые заявки, ожидающие выставления счёта. Нажмите на логин
+                    пользователя, чтобы получить список заявок пользователя. Все его заявки будут
+                  оформлены в единый счёт для оплаты.</p>
+                    <table class="table table-hover mt-5 mb-5">
+                      <thead>
+                        <tr class="thead-dark">
+                          <th>Дата</th>
+                          <th>Покупатель</th>
+                          <th>Товар</th>
+                          <th>Цена</th>
+                          <th>Кол-во</th>
+                          <th>Сумма</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for item in new_order %}
+                        <tr>
+                          <td>{{item.creation_date}}</td>
+                          <td>
+                            <a href="{% url 'seller_confirm_order' user_id=item.user.id status=0 %}">{{item.user}}</a>
+                          </td>
+                          <td>{{item.product|truncatewords:3}}</td>
+                          <td>{{item.product.price}}</td>
+                          <td>{{item.product_count}} {{item.product.unit.short}}</td>
+                          <td>{% widthratio item.product_count 1 item.product.price %}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if bills %}
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4>Список заказов</h4>
+                    <table class="table table-hover mt-5 mb-5">
+                      <thead>
+                        <tr class="thead-dark">
+                          <th>Дата</th>
+                          <th>Идентификатор заказа</th>
+                          <th>Пользователь</th>
+                          <th>Сумма</th>
+                          <th>Статус</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for b in bills %}
+                        <td>{{b.date}}</td>
+                        <td>
+                          {% if b.status != 1%}
+                          <a href="{% url 'seller_order_details' order_number=b.order_number %}" title="Детали заказа">{{b.order_number}}</a>
+                          {% else %}
+                          {{b.order_number}}
+                          {% endif %}
+                        </td>
+                        <td>{{b.user}}</td>
+                        <td>{{b.bill_sum}}</td>
+                        <td>
+                          {% if b.status == 1%}
+                          <div class="badge badge-danger p-2">Ожидает подтверждения</div>
+                          {% elif b.status == 2 %}
+                          <div class="badge badge-warning p-2">Ожидает оплаты</div>
+                          {% elif b.status == 3 %}
+                          <div class="badge badge-info p-2">В процессе доставки</div>
+                          {% elif b.status == 4 %}
+                          <div class="badge badge-success p-2">Закрыт</div>
+                          {% endif %}
+                        </td>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

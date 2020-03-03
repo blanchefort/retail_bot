@@ -1,0 +1,16 @@
+{# Load the tag library #}
+{% load bootstrap4 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% for p in products %}
+{{p.title}}<br>
+{{p.category}}<br>
+{{p.user}}
+<hr>
+{% endfor %}

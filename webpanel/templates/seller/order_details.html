@@ -1,0 +1,103 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'seller/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <ul class="list-arrow">
+                      <li>Идентификатор заказа: {{order_number}}</li>
+                      <li>Покупатель: {{order_user}}</li>
+                      <li>Сумма: {{order_sum}}</li>
+                      <li>Статус: 
+                        {% if order_status == 2 %}
+                        <div class="badge badge-warning p-2">Ожидает оплаты</div>
+                        {% elif order_status == 3 %}
+                        <div class="badge badge-info p-2">В процессе доставки</div>
+                        {% elif order_status == 4 %}
+                        <div class="badge badge-success p-2">Закрыт</div>
+                        {% endif %}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-lg-6">
+                        <p>Если вы ещё не отправляли счёт покупателю, сделайте это прямо сейчас, чтобы ускорить завершение сделки.</p>
+                        <button class="btn btn-lg btn-success btn-block">Отправить счёт</button>
+                      </div>
+                      <div class="col-lg-6">
+                        <p>Если покупатель уже оплатил заказ, отметьте его как закрытый, чтобы товар можно было бы ему отправить.</p>
+                        <button class="btn btn-lg btn-success btn-block">Закрыть заказ</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4>Заказ</h4>
+                    <table class="table table-hover mt-5 mb-5">
+                      <thead>
+                        <tr class="thead-dark">
+                          <th>Дата</th>
+                          <th>Товар</th>
+                          <th>Цена</th>
+                          <th>Кол-во</th>
+                          <th>Сумма</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for item in order_items %}
+                        <tr>
+                          <td>{{item.creation_date}}</td>
+                          <td>{{item.product}}</td>
+                          <td>{{item.product.price}}</td>
+                          <td>{{item.product_count}} {{item.product.unit.short}}</td>
+                          <td>{% widthratio item.product_count 1 item.product.price %}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

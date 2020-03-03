@@ -1,0 +1,121 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+    </head>
+    <body>
+        <div class="container-scroller">
+            <div class="container-fluid page-body-wrapper full-page-wrapper">
+                <div class="content-wrapper">
+                    <div class="row">
+                        <div class="col mx-auto">
+                            <h1>Retail Bot</h1>
+                            <p class="lead">Какое-то описание. Веб-интерфейс бота, помогающего найти в Казахстане товар и доставку по минимальной цене... И т.д.</p>
+
+                            {% bootstrap_messages %}
+                            
+                            <div class="row">
+                                <div class="col-md-12 grid-margin">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="d-sm-flex align-items-baseline report-summary-header">
+                                                        <h5 class="font-weight-semibold">Статистика сервиса</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row report-inner-cards-wrapper">
+
+                                                <div class="col-md-6 col-xl report-inner-card">
+                                                    <div class="inner-card-text">
+                                                        <span class="report-title">ТОВАРОВ</span>
+                                                        <h4>{{products_count}}</h4>
+                                                        <span class="report-count">&nbsp;</span>
+                                                    </div>
+                                                    <div class="inner-card-icon bg-success">
+                                                        <i class="icon-diamond"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6 col-xl report-inner-card">
+                                                    <div class="inner-card-text">
+                                                        <span class="report-title">ПРОДАВЦОВ</span>
+                                                        <h4>{{sellers_count}}</h4>
+                                                        <span class="report-count">&nbsp;</span>
+                                                    </div>
+                                                    <div class="inner-card-icon bg-warning">
+                                                        <i class="icon-basket"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6 col-xl report-inner-card">
+                                                    <div class="inner-card-text">
+                                                        <span class="report-title">ТРАНСПОРТНИКОВ</span>
+                                                        <h4>{{transporters_count}}</h4>
+                                                        <span class="report-count">&nbsp;</span>
+                                                    </div>
+                                                    <div class="inner-card-icon bg-danger">
+                                                        <i class="icon-rocket"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6 col-xl report-inner-card">
+                                                    <div class="inner-card-text">
+                                                        <span class="report-title">ПОКУПАТЕЛЕЙ</span>
+                                                        <h4>{{users_count}}</h4>
+                                                        <span class="report-count">&nbsp;</span>
+                                                    </div>
+                                                    <div class="inner-card-icon bg-primary">
+                                                        <i class="icon-user"></i>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if user.is_anonymous %}
+                            <div class="row">
+                                <div class="col-lg-4 mx-auto">
+                                    <a href="{% url 'select_registration' %}" class="btn btn-success btn-rounded">Зарегистрироваться</a>
+                                    <a href="{% url 'login' %}" class="btn btn-info btn-rounded">Войти</a>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="row">
+                                <div class="col-lg-4 mx-auto">
+                                    <a href="{% url 'select_profile' %}" class="btn btn-dark btn-rounded">Перейти в профиль</a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                    <footer>
+                        <div class="row">
+                            <div class="col">
+                                <hr>
+                                <p>Тема: <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap Dash</a>.</p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+
+        {% bootstrap_javascript jquery='full' %}
+    </body>
+</html>

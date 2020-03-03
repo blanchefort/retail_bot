@@ -1,0 +1,26 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'seller/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'seller/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <ul class="list-arrow">
+                      <li>Покупатель: <b>{{order_user}}</b></li>
+                      <li>Сумма заказа: <b>{{total_sum}}</b>&nbsp;₸</li>
+                    </ul>
+                    <p>Для удобства вы можете скачать заказанные товары в виде эксель-файла, чтобы сформировать свой счёт. Желательно также уведомить покупателя, что его заказ принят в обработку. Ему будут высланы сумма заказа и ваши реквизиты для оплаты. Вы также можете отправить покупателю ваш официальный счёт на оплату.</p>
+                    <p>Для этого воспользуйтесь кнопками ниже.</p>
+                    <div class="row">
+                      <div class="col-lg-4">
+                        <a class="btn btn-lg btn-success btn-block" href="{% url 'seller_download_order_as_xsls' user_id=order_user.id %}">Скачать список</a>
+                      </div>
+                      <div class="col-lg-4">
+                        {% if status == 1 %}
+                        <a href="{% url 'seller_confirm_order' user_id=order_user.id status=2 %}" class="btn btn-lg btn-success btn-block">Принять заказ в обработку</a>
+                        {% else %}
+                        <button class="btn btn-lg btn-success btn-block" disabled>Заказ принят в обработку</button>
+                        {% endif %}
+                      </div>
+                      <div class="col-lg-4">
+                        <button class="btn btn-lg btn-success btn-block">Отправить счёт</button>
+                      </div>
+                    </div>
+                    <h4 class="mt-5">Заказ</h4>
+                    <table class="table table-hover mt-5 mb-5">
+                      <thead>
+                        <tr class="thead-dark">
+                          <th>Товар</th>
+                          <th>Цена</th>
+                          <th>Кол-во</th>
+                          <th>Сумма</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for item in order %}
+                        <tr>
+                          <td>{{item.product}}</td>
+                          <td>{{item.product.price}}</td>
+                          <td>{{item.product_count}} {{item.product.unit.short}}</td>
+                          <td>{% widthratio item.product_count 1 item.product.price %}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

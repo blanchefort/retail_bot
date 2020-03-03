@@ -1,0 +1,103 @@
+{% load bootstrap4 %}
+{% load static %}
+      <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="navbar-brand-wrapper d-flex align-items-center">
+          <a class="navbar-brand brand-logo" href="{% url 'index' %}">
+            <img src="{% static 'Stellar-master/images/logo.svg' %}" alt="Retail Bot" class="logo-dark" />
+          </a>
+          <a class="navbar-brand brand-logo-mini" href="{% url 'index' %}">
+            <img src="{% static 'Stellar-master/images/logo-mini.svg' %}" alt="Retail Bot" />
+          </a>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center flex-grow-1">
+          <h5 class="mb-0 font-weight-medium d-none d-lg-flex">{{title}}</h5>
+          <ul class="navbar-nav navbar-nav-right ml-auto">
+            <li class="nav-item"><a href="{% url 'seller_products' %}" class="nav-link" title="Список ваших товаров"><i class="icon-present"></i></a></li>
+            <li class="nav-item"><a href="{% url 'seller_upload_price' %}" class="nav-link" title="Загрузить прайс"><i class="icon-cloud-upload"></i></a></li>
+              
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link" title="Выход"><i class="icon-logout"></i>&nbsp;&nbsp;Выход</a>
+            </li>
+          </ul>
+          <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+            <span class="icon-menu"></span>
+          </button>
+        </div>
+      </nav>
+
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:../../partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+          <ul class="nav">
+            <li class="nav-item nav-profile">
+              <a href="#" class="nav-link">
+                <div class="profile-image">
+                  <img class="img-xs rounded-circle" src="{% static 'Stellar-master/images/faces-clipart/pic-4.png' %}" alt="profile image">
+                  <div class="dot-indicator bg-success"></div>
+                </div>
+                <div class="text-wrapper">
+                  <p class="profile-name">{{screenname}}</p>
+                </div>
+                </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Панель управления</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_index' %}">
+                <span class="menu-title">Начало</span>
+                <i class="icon-screen-desktop menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_upload_price' %}">
+                <span class="menu-title">Загрузить прайс</span>
+                <i class="icon-cloud-upload menu-icon"></i>
+              </a>
+            </li>
+
+            <li class="nav-item nav-category">
+              <span class="nav-link">Главное</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_pricelists' %}">
+                <span class="menu-title">Прайс-листы</span>
+                <i class="icon-docs menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_products' %}">
+                <span class="menu-title">Товары</span>
+                <i class="icon-present menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_orders' %}">
+                <span class="menu-title">Счета и заказы</span>
+                <i class="icon-note menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item nav-category">
+              <span class="nav-link">Настройки</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_requisites' %}">
+                <span class="menu-title">Реквизиты</span>
+                <i class="icon-book-open menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'seller_payment' %}">
+                <span class="menu-title">Оплата сервиса</span>
+                <i class="icon-wallet menu-icon"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span class="menu-title">Бланк прайс-листа</span>
+                <i class="icon-doc menu-icon"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>

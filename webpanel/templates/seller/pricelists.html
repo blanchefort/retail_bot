@@ -1,0 +1,56 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'seller/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+            <div class="card">
+              <div class="card-body">
+                {% if count > 0 %}
+                <p>Всего вы загрузили <strong>{{count}}</strong> файлов.</p>
+                {% bootstrap_pagination list size='large' %}
+                <table class="table table-hover mt-5 mb-5">
+                  <thead>
+                    <tr class="thead-dark">
+                      <th>#</th>
+                      <th>Дата загрузки</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {%for l in list %}
+                    <tr>
+                      <td>{{forloop.counter}}</td>
+                      <td>
+                        <i class=" icon-calendar">
+                        <a href="{{l.file_name.url}}">{{l.uploaded}}</i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% bootstrap_pagination list size='large' %}
+                {% else %}
+                <p>Кажется, вы пока не загрузили ни одного прайс-листа.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>
