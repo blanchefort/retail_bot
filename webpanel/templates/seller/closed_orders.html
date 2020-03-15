@@ -1,0 +1,82 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'seller/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4>Детализация по выбранному заказу</h4>
+                    <ul class="list-arrow">
+                      <li>Идентификатор заказа: {{current_order.order_number}}</li>
+                      <li>Покупатель: {{current_order.user.username}}</li>
+                      <li>Сумма: {{order_sum}}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4>Все закрытые заказы</h4>
+                    <p>Всего закрытых заказов: <b class="badge badge-success p-2">{{closed_count}}</b></p>
+                    <table class="table table-hover mt-5 mb-5">
+                      <thead>
+                        <tr class="thead-dark">
+                          <th>Номер заказа</th>
+                          <th>Дата создания заказа</th>
+                          <th>Дата выставления счёта</th>
+                          <th>Дата доставки</th>
+                          <th>Заказчик</th>
+                          <th>Сумма</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for i in order_list %}
+                        <tr>
+                          <td>
+                            <a href="{% url 'seller_closed_orders' order_number=i.order_data.order_number %}">
+                              {{i.order_data.order_number}}
+                            </a>
+                          </td>
+                          <td>{{i.order_data.creation_date}}</td>
+                          <td>{{i.order_data.bill_date}}</td>
+                          <td>{%if i.order_data.delivery_date == None%}не доставлен
+                          {%else%}{{i.order_data.delivery_date}}{%endif%}</td>
+                          <td>{{i.order_data.user.username}}</td>
+                          <td>{{i.order_sum}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

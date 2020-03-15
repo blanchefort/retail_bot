@@ -20,12 +20,16 @@ from django.urls import path, include
 from webpanel.views import index, seller
 
 urlpatterns = [
+    # ENTER
     path('', index.index, name='index'),
+    # ADMIN
     path('admin/', admin.site.urls, name='admin'),
+    # AUTH
     path('accounts/', include('django.contrib.auth.urls')),
     path('profile/', index.select_profile, name='select_profile'),
     path('select_registration/', index.select_registration, name='select_registration'),
     path('registration/<int:type>', index.registration, name='registration'),
+    # SELLER
     path('seller/', seller.index, name='seller_index'),
     path('seller/upload_price/', seller.upload_price, name='seller_upload_price'),
     path('seller/pricelists/', seller.pricelists, name='seller_pricelists'),
@@ -36,6 +40,7 @@ urlpatterns = [
     path('seller/order_details/<int:order_number>', seller.order_details, name='seller_order_details'),
     path('seller/requisites/', seller.requisites, name='seller_requisites'),
     path('seller/payment/', seller.payment, name='seller_payment'),
+    path('seller/closed_orders/<int:order_number>', seller.closed_orders, name='seller_closed_orders'),
 ]
 
 if settings.DEBUG:

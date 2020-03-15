@@ -103,29 +103,33 @@
                         </tr>
                       </thead>
                       <tbody>
+                        
                         {% for b in bills %}
-                        <td>{{b.date}}</td>
-                        <td>
-                          {% if b.status != 1%}
-                          <a href="{% url 'seller_order_details' order_number=b.order_number %}" title="Детали заказа">{{b.order_number}}</a>
-                          {% else %}
-                          {{b.order_number}}
-                          {% endif %}
-                        </td>
-                        <td>{{b.user}}</td>
-                        <td>{{b.bill_sum}}</td>
-                        <td>
-                          {% if b.status == 1%}
-                          <div class="badge badge-danger p-2">Ожидает подтверждения</div>
-                          {% elif b.status == 2 %}
-                          <div class="badge badge-warning p-2">Ожидает оплаты</div>
-                          {% elif b.status == 3 %}
-                          <div class="badge badge-info p-2">В процессе доставки</div>
-                          {% elif b.status == 4 %}
-                          <div class="badge badge-success p-2">Закрыт</div>
-                          {% endif %}
-                        </td>
+                        <tr>
+                          <td>{{b.date}}</td>
+                          <td>
+                            {% if b.status != 1%}
+                            <a href="{% url 'seller_order_details' order_number=b.order_number %}" title="Детали заказа">{{b.order_number}}</a>
+                            {% else %}
+                            {{b.order_number}}
+                            {% endif %}
+                          </td>
+                          <td>{{b.user}}</td>
+                          <td>{{b.bill_sum}}</td>
+                          <td>
+                            {% if b.status == 1%}
+                            <div class="badge badge-danger p-2">Ожидает подтверждения</div>
+                            {% elif b.status == 2 %}
+                            <div class="badge badge-warning p-2">Ожидает оплаты</div>
+                            {% elif b.status == 3 %}
+                            <div class="badge badge-info p-2">В процессе доставки</div>
+                            {% elif b.status == 4 %}
+                            <div class="badge badge-success p-2">Закрыт</div>
+                            {% endif %}
+                          </td>
+                        </tr>
                         {% endfor %}
+                        
                       </tbody>
                     </table>
                   </div>

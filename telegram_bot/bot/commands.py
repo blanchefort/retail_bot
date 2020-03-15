@@ -148,19 +148,25 @@ class Commands(object):
         """Регистрация нового бесплатного покупателя:
         Шаг 3: Сохранение результата, выдаётся пароль
         """
-        text = update.message.text.lower()
-        print(text)
+        text = update.message.text.lower().strip()
+
         if validate_email(text):
-            print('validate_email')
             #'Валидация почты успешна'
             if User.objects.filter(email=text):
                 message = 'Такой адрес электронной почты уже зарегистрирован в системе. Попробуйте заново с другой почтой: /register'
             else:
                 # Все проверки закончены, регистрируем нового пользователя
-                if User.objects.filter(username=update.message.chat.username):
-                    username = context.user_data['phone_number']
-                else:
-                    username = update.message.chat.username
+                # if User.objects.filter(username=update.message.chat.username):
+                #     username = context.user_data['phone_number']
+                # else:
+                # if len(update.message.chat.username) > 3:
+                #     username = update.message.chat.username
+                # else:
+                #     username = context.user_data['phone_number']
+
+                # if update.message.chat.username:
+                #     #
+                username = context.user_data['phone_number']
 
                 new_user = User(username=username, email=text)
                 password = User.objects.make_random_password()
@@ -168,8 +174,6 @@ class Commands(object):
                 new_user.last_name = update.message.chat.last_name or ''
                 new_user.first_name = update.message.chat.first_name or ''
                 new_user.save()
-
-                print(new_user)
 
                 new_user.profile.type = 1
                 new_user.profile.phone = context.user_data['phone_number']

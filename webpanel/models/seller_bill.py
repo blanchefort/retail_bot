@@ -12,6 +12,9 @@ class SellerBill(models.Model):
         file_name (string): Имя загруженного на сервер файла
         uploaded (datetime): время загрузки
         order_sum (int): Сумма заказа
+        reseived_flag (int): Отметка о получении счёта покупателем:
+            0 - не получал
+            1 - получил
     """
 
     seller = models.ForeignKey(User,
@@ -37,6 +40,12 @@ class SellerBill(models.Model):
         )
     order_sum = models.FloatField(
         verbose_name='Сумма, тенге'
+        )
+    reseived_flag = models.IntegerField(
+        verbose_name='Отметка о получении счёта покупателем',
+        default=None,
+        blank=True,
+        null=True
         )
 
     def __str__(self):

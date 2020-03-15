@@ -1,5 +1,5 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
 from openpyxl import Workbook
 
 from django.contrib.auth.decorators import login_required
@@ -13,11 +13,16 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 
 from webpanel.forms import UploadFileForm
+from webpanel.forms import UploadBillForm
+from webpanel.forms import UpdateProfileSellerForm
 from webpanel.processing.pricelist import get_data
 from webpanel.processing.pricelist import save_products
+from webpanel.processing.get_order import get_seller_order_by_number
 from webpanel.models.price_list import PriceLists
 from webpanel.models.product import Product
+from webpanel.models.profile import Profile
 from webpanel.models.order import Order
+from webpanel.models.seller_bill import SellerBill
 
 @login_required(login_url='/accounts/login/')
 def index(request):
@@ -26,8 +31,6 @@ def index(request):
     if request.user.profile.type != 4:
         raise PermissionDenied
 
-    messages.success(request, 'Тестовое сообщение.')
-    messages.error(request, 'какая-то ошибка')
     context = {
         # Заголовок текущей страницы
         'title': 'Сводка по вашему аккаунту',
@@ -225,6 +228,7 @@ def orders(request):
                 }
                 bs.append(b)
 
+        #bs = bs.reverse()
         context.update({'bills': bs})
     return TemplateResponse(request, 'seller/orders.html', context=context)
 
@@ -281,6 +285,7 @@ def confirm_order(request, user_id, status):
     else:
         raise HttpResponseNotFound
 
+
     return TemplateResponse(request, 'seller/confirm_order.html', context=context)
 
 @login_required(login_url='/accounts/login/')
@@ -309,6 +314,29 @@ def order_details(request, order_number):
             total_sum += item.product_count * item.product.price
         context.update({'order_sum': total_sum})
         context.update({'order_status': order_items.first().status})
+
+        # Форма на отправку счёта
+        if request.method == 'POST':
+            print(1)
+            upload_form = UploadBillForm(request.POST, request.FILES)
+            print(2)
+            if upload_form.is_valid():
+                print(3)
+                bill_price = upload_form.save(commit=False)
+                bill_price.seller = request.user
+                bill_price.user = order_items.first().user
+                bill_price.order_number = order_number
+                bill_price.order_sum = total_sum
+                bill_price.reseived_flag = 0
+                bill_price.save()
+                messages.success(request, 'Файл успешно загружен!')
+        else:
+            context.update({'form': UploadBillForm()})
+
+        # проверяем, есть ли выставленный счёт на этот заказ
+        if SellerBill.objects.filter(order_number=order_number):
+            context.update({'bill': SellerBill.objects.get(order_number=order_number)})
+
     else:
         raise HttpResponseNotFound
 
@@ -409,6 +437,33 @@ def requisites(request):
         # отображаемое на сайте имя пользователя
         'screenname': request.user.first_name or request.user.username
     }
+
+    if request.method == "POST":
+        form = UpdateProfileSellerForm(data=request.POST, instance=request.user.profile)
+        if form.is_valid():
+            # Проверка
+            phone = form.cleaned_data.get('phone')
+            check_phone = Profile.objects.filter(phone=phone).exclude(user=request.user)
+
+            if check_phone.count() == 0:
+                bin = form.cleaned_data.get('bin')
+                check_bin = Profile.objects.filter(bin=bin).exclude(user=request.user)
+
+                if check_bin.count() == 0:
+                    request.user.profile.phone = form.cleaned_data.get('phone')
+                    request.user.profile.company_name = form.cleaned_data.get('company_name')
+                    request.user.profile.address = form.cleaned_data.get('address')
+                    request.user.profile.bin = form.cleaned_data.get('bin')
+                    request.user.profile.bank_account = form.cleaned_data.get('bank_account')
+                    request.user.save()
+                    messages.success(request, 'Реквизиты вашей организации обновлены.')
+                else:
+                    messages.error(request, 'Данный БИН нельзя использовать.')
+            else:
+                messages.error(request, 'Данный номер телефона нельзя использовать.')
+
+    form = UpdateProfileSellerForm(instance=request.user.profile)
+    context.update({'form':form})
     return TemplateResponse(request, 'seller/requisites.html', context=context)
 
 
@@ -426,3 +481,64 @@ def payment(request):
         'screenname': request.user.first_name or request.user.username
     }
     return TemplateResponse(request, 'seller/payment.html', context=context)
+
+@login_required(login_url='/accounts/login/')
+def closed_orders(request, order_number):
+    """Закрывает счёт, либо показывает информацию по закрытому счёту
+    """
+    if request.user.profile.type != 4:
+        raise PermissionDenied
+
+    context = {
+        # Заголовок текущей страницы
+        'title': 'Закрыте счета',
+        # отображаемое на сайте имя пользователя
+        'screenname': request.user.first_name or request.user.username
+    }
+
+    if order_number < 1:
+        messages.danger(request, 'Заказа с таким номером не существует.')
+    else:
+
+        if Order.objects.filter(order_number=order_number):
+        
+            order = Order.objects.filter(order_number=order_number).first()
+
+            if order.status != 4:
+                order.status = 4
+                order.save()
+                messages.success(request, f'Заказ {order_number} отмечен как закрытый.')
+            context.update({'current_order': order})
+            # Сумма заказа
+            total_sum = 0
+            for item in Order.objects.filter(order_number=order_number):
+                total_sum += item.product_count * item.product.price
+            context.update({'order_sum': total_sum})
+        else:
+            messages.danger(request, 'Заказа с таким номером не найдено.')
+
+    # Все закрытые заказы пользователя
+    # status=4
+    order_ids = Order.objects.filter(status=4).values('order_number').filter(product__user=request.user).distinct()
+    context.update({'closed_count': order_ids.count()})
+
+    if order_ids.count() > 0:
+        order_list = []
+        for n in order_ids:
+            i = n['order_number']
+            order_items = Order.objects.filter(order_number=i)
+            # Сумма заказа
+            total_sum = 0
+            for item in order_items:
+                total_sum += item.product_count * item.product.price
+            ordr = {
+                'order_data': Order.objects.filter(order_number=i).first(),
+                'order_sum': total_sum
+            }
+            order_list.append(ordr)
+        context.update({'order_list': order_list})
+
+    # Order.objects.filter(status=2).filter(product__user=request.user).distinct()
+    
+
+    return TemplateResponse(request, 'seller/closed_orders.html', context=context)

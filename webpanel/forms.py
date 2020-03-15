@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.validators import FileExtensionValidator
 from webpanel.models.profile import Profile
 from webpanel.models.price_list import PriceLists
-from django.core.validators import FileExtensionValidator
+from webpanel.models.seller_bill import SellerBill
 
 class UserForm(forms.ModelForm):
     """Форма создания нового пользователя
@@ -112,6 +113,13 @@ class ProfileSellerForm(forms.ModelForm):
             raise forms.ValidationError('Данный БИН уже зарегистрирован в системе.')
         return bin
 
+class UpdateProfileSellerForm(forms.ModelForm):
+    """Форма обновления продавца
+    """
+    class Meta:
+        model = Profile
+        fields = ('phone', 'company_name', 'address', 'bin', 'bank_account',)
+
 
 class UploadFileForm(forms.ModelForm):
     """Форма загрузки прайс-листа
@@ -123,4 +131,17 @@ class UploadFileForm(forms.ModelForm):
 
     class Meta:
         model = PriceLists
+        fields = ('file_name',)
+
+
+class UploadBillForm(forms.ModelForm):
+    """Форма загрузки прайс-листа
+    """
+    file_name = forms.FileField(
+        label='Загрузить счёт на оплату',
+        validators=[FileExtensionValidator(['xlsx', 'xls', 'ods'])]
+    )
+
+    class Meta:
+        model = SellerBill
         fields = ('file_name',)
