@@ -37,6 +37,20 @@ def index(request):
         # отображаемое на сайте имя пользователя
         'screenname': request.user.first_name or request.user.username
     }
+
+    # Распределение заказов
+    # новые, 
+    orders_new = Order.objects.filter(product__user=request.user).filter(status=1).values('user').distinct()
+    context.update({'orders_new': len(orders_new)})
+    # открытые, 
+    orders_opened = Order.objects.filter(product__user=request.user).filter(status=2).values('order_number').distinct()
+    context.update({'orders_opened': len(orders_opened)})
+    # закрытые
+    orders_closed = Order.objects.filter(product__user=request.user).filter(status=4).values('order_number').distinct()
+    context.update({'orders_closed': len(orders_closed)})
+
+    # Топ-5 товаров
+    
     return TemplateResponse(request, 'seller/index.html', context=context)
 
 

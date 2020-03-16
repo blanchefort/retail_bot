@@ -87,6 +87,13 @@ class ProfileTransporterForm(forms.ModelForm):
             raise forms.ValidationError('Данный БИН уже зарегистрирован в системе.')
         return bin
 
+class UpdateProfileTransporterForm(forms.ModelForm):
+    """Форма обновления продавца
+    """
+    class Meta:
+        model = Profile
+        fields = ('phone', 'company_name', 'address', 'bin', 'bank_account',)
+
 
 class ProfileSellerForm(forms.ModelForm):
     """Форма создания продавца
@@ -145,3 +152,10 @@ class UploadBillForm(forms.ModelForm):
     class Meta:
         model = SellerBill
         fields = ('file_name',)
+
+
+class ConfirmTransporterForm(forms.Form):
+    """Подтверждение транспортником заказа,
+    указание стоимости доставки.
+    """
+    price = forms.CharField(label='Укажите ваши стоимость доставки')

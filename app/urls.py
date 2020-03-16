@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
-from webpanel.views import index, seller
+from webpanel.views import index, seller, transporter
 
 urlpatterns = [
     # ENTER
@@ -41,6 +41,14 @@ urlpatterns = [
     path('seller/requisites/', seller.requisites, name='seller_requisites'),
     path('seller/payment/', seller.payment, name='seller_payment'),
     path('seller/closed_orders/<int:order_number>', seller.closed_orders, name='seller_closed_orders'),
+    # TRANSPORTER
+    path('tr/', transporter.index, name='tr_index'),
+    path('tr/requisites/', transporter.requisites, name='tr_requisites'),
+    path('tr/payment/', transporter.payment, name='tr_payment'),
+    path('tr/dlvrs/', transporter.delivery_list, name='tr_dlvrs'),
+    path('tr/about/<int:order_number>', transporter.about, name='tr_about'),
+    path('tr/confirmed/<int:order_number>', transporter.confirmed_order, name='tr_confirmed'),
+    path('tr/close/<int:order_number>', transporter.close_order, name='tr_close'),
 ]
 
 if settings.DEBUG:

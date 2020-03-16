@@ -1,0 +1,59 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'transporter/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Дата оформления заказа: {{creation_date}}</h5>
+                    <h5>Вы приняли к исполнению: {{delivery_date}}</h5>
+                    <h5>Откуда нужно доставить: {{delivery_from}}</h5>
+                    <h5>Куда нужно доставить: {{delivery_to}}</h5>
+                    <h5>Телефон покупателя: {{user_phone}}</h5>
+                    <h5>Телефон поставщика: {{seller_phone}}</h5>
+                    <h5>Стоимость доставки: {{delivery.amount}}</h5>
+                    <table class="table table-hover mt-5 mb-5">
+                      <thead>
+                        <tr class="thead-dark">
+                          <th>Наименование</th>
+                          <th>Количество</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for i in order%}
+                        <tr>
+                          <td>{{i.product.title}}</td>
+                          <td>{{i.product_count}} ({{i.product.unit.short}})</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    <p>Если доставка уже осуществлена, отметьте закройте заявку:</p>
+                    <a href="{% url 'tr_close' order_number=delivery.order_number %}" class="btn btn-block btn-success btn-lg font-weight-medium">Закрыть заявку</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

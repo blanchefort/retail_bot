@@ -1,15 +1,18 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+
 from .models.product_category import ProductCategory
 from .models.product_unit_type import ProductUnitType
 from .models.product import Product
 from .models.order import Order
 from .models.seller_bill import SellerBill
-from django.contrib.auth import get_user_model
-from django.contrib.auth.admin import UserAdmin
+from .models.transporter_bill import Delivery
 
 admin.site.register(ProductCategory)
 admin.site.register(Order)
 admin.site.register(SellerBill)
+admin.site.register(Delivery)
 
 
 @admin.register(ProductUnitType)

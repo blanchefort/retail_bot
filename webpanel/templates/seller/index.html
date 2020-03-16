@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
         <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
         <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/chartist/chartist.min.css' %}">
         <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
   </head>
   <body>
@@ -25,6 +26,12 @@
                 <div class="card">
                   <div class="card-body">
                     <h4>Распределение заказов</h4>
+                    <div class="ct-chart ct-perfect-fourth" id="Orders"></div>
+                    <ul class="list-ticked mt-5">
+                      <li>Новые: {{orders_new}}</li>
+                      <li>Ожидают оплату: {{orders_opened}}</li>
+                      <li>Оплаченные: {{orders_closed}}</li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -33,9 +40,18 @@
                 <div class="card">
                   <div class="card-body">
                     <h4>Топ товаров</h4>
+                    <div class="ct-chart ct-perfect-fourth" id="TopProducts"></div>
+                    <ul class="list-ticked">
+                      <li>Название товара</li>
+                      <li>Название товара</li>
+                      <li>Название товара</li>
+                      <li>Название товара</li>
+                      <li>Название товара</li>
+                    </ul>
                   </div>
                 </div>
               </div>
+
             </div>
 
             <div class="row">
@@ -43,6 +59,7 @@
                 <div class="card">
                   <div class="card-body">
                     <h4>Хронология оплат</h4>
+                    <div class="ct-chart" id="Chrono"></div>
                   </div>
                 </div>
               </div>
@@ -51,5 +68,28 @@
           </div>
           {% include 'footer.html' %}
         </div>
+
+  <script src="{% static 'Stellar-master/vendors/chartist/chartist.min.js' %}"></script>
+  <script src="bower_components/chartist/dist/chartist.min.js"></script>
+  <script type="text/javascript">
+    new Chartist.Pie('#Orders', {
+      labels: ['Новые', 'Ожидают оплату', 'Оплаченные'],
+      series: [{{orders_new}}, {{orders_opened}}, {{orders_closed}}]
+    });
+
+
+    new Chartist.Line('#Chrono', {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      series: [[5, 2, 4, 2, 6]]
+    }, {
+      //width: 1000,
+      height: 300
+    });
+
+    new Chartist.Bar('#TopProducts', {
+      labels: [1, 2, 3, 4],
+      series: [[5, 2, 8, 3]]
+    });
+  </script>
   </body>
 </html>

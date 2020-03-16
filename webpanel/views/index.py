@@ -42,7 +42,7 @@ def select_profile(request):
             pass
         elif request.user.profile.type == 3:
             # Транспортник
-            pass
+            return redirect('tr_index')
         elif request.user.profile.type == 4:
             # Продавец
             return redirect('seller_index')
