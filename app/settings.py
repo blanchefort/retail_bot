@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'webpanel.apps.WebpanelConfig',
     'telegram_bot.apps.TelegramBotConfig',
-    #'django_telegrambot', for webhook
 ]
 
 MIDDLEWARE = [

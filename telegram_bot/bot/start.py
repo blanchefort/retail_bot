@@ -3,6 +3,7 @@ import sys
 from threading import Thread
 
 from django.conf import settings
+
 from telegram.utils.request import Request
 from telegram import Bot
 from telegram.ext import Updater
@@ -13,6 +14,10 @@ from telegram.ext import Filters
 from .commands import Commands
 from .search import Search
 from .order import Order
+from .catalog import Catalog
+
+from webpanel.models.seller_bill import SellerBill
+from webpanel.models.transporter_bill import Delivery
 
 class StartBot(object):
     """Запуск бота
@@ -49,6 +54,7 @@ class StartBot(object):
         self.updater.start_polling()
         self.updater.idle()
 
+
         return self.request, self.bot, self.updater
 
 
@@ -65,8 +71,15 @@ class StartBot(object):
         # Просмотр и отправка заказа
         order = Order(updater=self.updater)
 
+        # Каталог
+        catalog = Catalog(updater=self.updater)
+
         # Поиск - самый последний
         search = Search(updater=self.updater)
+
+        # Работа по расписанию
+        j = self.updater.job_queue
+        job_minute = j.run_repeating(self._timer_handler, interval=60, first=0)
 
     def _restart(self, update, context):
         """Рестарт бота
@@ -80,3 +93,48 @@ class StartBot(object):
         """
         self.updater.stop()
         os.execl(sys.executable, sys.executable, *sys.argv)
+
+    def _timer_handler(self, context):
+        """Отправляем сообщения по расписанию
+        """
+        # Отправляем счета от продавца
+        bills = SellerBill.objects.filter(reseived_flag=0)
+        for b in bills:
+            message = f'Здравствуйте!\nВаш заказ №{b.order_number} обработан и выставлен счёт.'
+            message += '\nДля того, чтобы заказ был доставлен, его необходимо оплатить.'
+
+            context.bot.send_message(
+                chat_id=b.user.profile.telegram_id,
+                text=message)
+            context.bot.send_document(
+                chat_id=b.user.profile.telegram_id,
+                document=b.file_name.open(mode='rb'))
+
+            message = 'Не забудьте проверить, указан ли ваш адрес для доставки!'
+            message += '\n Сделать это можно с помощью команды /address'
+            context.bot.send_message(
+                chat_id=b.user.profile.telegram_id,
+                text=message)
+            
+            b.reseived_flag = 1
+            b.save()
+        
+        # Отправляем стоимость доставки от транспортника
+        bills = Delivery.objects.filter(reseived_flag=0)
+        for b in bills:
+            message = f'Здравствуйте! Ваш заказ №{b.order_number} принят службой доставки.'
+            message += f'\nСтоимость доставки составит {b.amount}₸.'
+            message += f'\nВ случае возникновения вопросов по доставке обращайтесь по телефону: '
+            message += b.user.profile.phone
+
+            sb = SellerBill.objects.get(order_number=b.order_number)
+
+            context.bot.send_message(
+                chat_id=sb.user.profile.telegram_id,
+                text=message)
+            
+            b.reseived_flag = 1
+            b.save()
+
+        # Отправляем сообщения от администрации сервера,
+        # сдалеть отдельным методом

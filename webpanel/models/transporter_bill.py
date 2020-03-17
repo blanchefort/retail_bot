@@ -11,6 +11,9 @@ class Delivery(models.Model):
         user (User) - транспортник, который исполняет заказ
         order_number (int) - номер заказа, Order.order_number
         amount (float) - сумма транспортных услуг
+        reseived_flag (int): Отметка о получении счёта покупателем:
+            0 - не получал
+            1 - получил
     """
     user = models.ForeignKey(
         User,
@@ -26,6 +29,12 @@ class Delivery(models.Model):
     amount = models.FloatField(
         verbose_name='сумма транспортных услуг',
         default=0.0
+        )
+    reseived_flag = models.IntegerField(
+        verbose_name='Отметка о получении счёта покупателем',
+        default=None,
+        blank=True,
+        null=True
         )
 
     def __str__(self):

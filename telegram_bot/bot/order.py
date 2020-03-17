@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from webpanel.models.order import Order as OrderModel
 from webpanel.models.profile import Profile
 
+from telegram_bot.decorator import save_query
 
 class Order(object):
     """Формирование заказа
@@ -61,6 +62,7 @@ class Order(object):
             pattern=r'^delete_product_[0-9]*$'))
 
 
+    @save_query
     def _order(self, update, context) -> None:
         """Данные по заказу
         """
@@ -121,6 +123,7 @@ class Order(object):
                 message,
                 reply_markup=ReplyKeyboardMarkup(reply_keyboard))
 
+    @save_query
     def _execute_order(self, update, context) -> None:
         """Отправить заявку на исполнение
         """
@@ -137,6 +140,7 @@ class Order(object):
         else:
             update.message.reply_text('Ваша заявка пуста. Нечего отправлять.')
 
+    @save_query
     def _delete_order(self, update, context) -> None:
         """Удалить заявку полностью
         """
@@ -153,6 +157,7 @@ class Order(object):
         else:
             update.message.reply_text('Ваша заявка пуста. Нечего удалять.')
 
+    @save_query
     def _order_list(self, update, context) -> None:
         """Список заявок в исполнении
         """
@@ -217,6 +222,7 @@ class Order(object):
             message,
             parse_mode=ParseMode.HTML,
             reply_markup=reply_markup)
+    
     def _change_product_2(self, update, context) -> None:
         """Увеличить объём товара на 10
 

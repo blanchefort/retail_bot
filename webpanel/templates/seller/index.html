@@ -20,7 +20,6 @@
         <div class="main-panel">
           <div class="content-wrapper">
             {% bootstrap_messages %}
-
             <div class="row">
               <div class="col-lg-6 grid-margin stretch-card">
                 <div class="card">
@@ -41,13 +40,11 @@
                   <div class="card-body">
                     <h4>Топ товаров</h4>
                     <div class="ct-chart ct-perfect-fourth" id="TopProducts"></div>
-                    <ul class="list-ticked">
-                      <li>Название товара</li>
-                      <li>Название товара</li>
-                      <li>Название товара</li>
-                      <li>Название товара</li>
-                      <li>Название товара</li>
-                    </ul>
+                    <ol>
+                      {% for i in top_products %}
+                      <li>{{i.title}}</li>
+                      {% endfor %}
+                    </ol>
                   </div>
                 </div>
               </div>
@@ -70,7 +67,8 @@
         </div>
 
   <script src="{% static 'Stellar-master/vendors/chartist/chartist.min.js' %}"></script>
-  <script src="bower_components/chartist/dist/chartist.min.js"></script>
+  <script src="{% static 'Moment/moment.js' %}"></script>
+  <script src="{% static 'Moment/moment-with-locales.js' %}"></script>
   <script type="text/javascript">
     new Chartist.Pie('#Orders', {
       labels: ['Новые', 'Ожидают оплату', 'Оплаченные'],
@@ -78,17 +76,35 @@
     });
 
 
-    new Chartist.Line('#Chrono', {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      series: [[5, 2, 4, 2, 6]]
-    }, {
-      //width: 1000,
-      height: 300
+    new Chartist.Bar('#TopProducts', {
+      labels: [1, 2, 3, 4, 5],
+      series: [[{% for i in top_products %}{{i.count}},{%endfor%}]]
     });
 
-    new Chartist.Bar('#TopProducts', {
-      labels: [1, 2, 3, 4],
-      series: [[5, 2, 8, 3]]
+    new Chartist.Line('#Chrono', {
+      series: [
+        {
+          name: 'series-1',
+          data: [
+            {x: new Date(143134652600), y: 53},
+            {x: new Date(143234652600), y: 40},
+            {x: new Date(143340052600), y: 45},
+            {x: new Date(143366652600), y: 40},
+            {x: new Date(143410652600), y: 20},
+            {x: new Date(143508652600), y: 32},
+            {x: new Date(143569652600), y: 18},
+            {x: new Date(143579652600), y: 11}
+          ]
+        }
+      ]
+    }, {
+      axisX: {
+        type: Chartist.FixedScaleAxis,
+        divisor: 5,
+        labelInterpolationFnc: function(value) {
+          return moment(value).format('MMM D');
+        }
+      }
     });
   </script>
   </body>

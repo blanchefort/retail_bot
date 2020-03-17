@@ -17,6 +17,7 @@ from validate_email import validate_email
 from django.contrib.auth.models import User
 from webpanel.models.profile import Profile
 
+from telegram_bot.decorator import save_query
 
 class Commands(object):
     """обработка стандартных команд
@@ -26,7 +27,8 @@ class Commands(object):
     /settings — (по возможности) возвращает список возможных настроек и команды для их изменения.
     """
     def __init__(self, updater: Updater) -> None:
-        self.STEP_B, self.STEP_C = range(2)
+        
+        
         self.updater = updater
         dp = updater.dispatcher
 
@@ -35,6 +37,7 @@ class Commands(object):
         dp.add_handler(CommandHandler('help', self._help))
         dp.add_handler(CommandHandler('settings', self._settings))
         
+        self.STEP_B, self.STEP_C = range(2)
         registration_handler = ConversationHandler(
             entry_points=[CommandHandler('register', self._register_step_a)],
             states={
@@ -46,9 +49,22 @@ class Commands(object):
             persistent=True
         )
 
+        self.ADDRESS_B = range(1)
+        address_handler = ConversationHandler(
+            entry_points=[CommandHandler('address', self._address)],
+            states={
+                self.ADDRESS_B: [MessageHandler(Filters.text, self._address_step_b)]
+            },
+            fallbacks=[CommandHandler('cancel', self._cancel_address)],
+            name='set_address',
+            persistent=True
+        )
+
         dp.add_handler(registration_handler)
+        dp.add_handler(address_handler)
 
 
+    @save_query
     def _start(self, update, context) -> None:
         """Стартовое приветствие бота
         """
@@ -61,6 +77,7 @@ class Commands(object):
         message += 'Пройдите авторизацию прямо сейчас: /register'
         update.message.reply_text(message)
 
+    @save_query
     def _help(self, update, context) -> None:
         """Помощь по боту
         """
@@ -70,11 +87,15 @@ class Commands(object):
         message += '\n'
         message += '/order — Ваш заказ.'
         message += '\n'
-        message += '/search — Поиск по товарам.'
+        message += '/catalog — Каталог товаров.'
+        message += '\n'
+        message += '/address — Ваш адрес для доставки.'
         message += '\n'
         message += '/help — помощь.'
+        
         update.message.reply_text(message)
 
+    @save_query
     def _settings(self, update, context) -> None:
         """Профиль пользователя
         """
@@ -90,14 +111,57 @@ class Commands(object):
         
             message += f'\nТелефон: {user.profile.phone}'
             message += f'\nПочта: {user.email}'
-            message += f'\nИмя: {user.first_name}'
-            message += f'\nФамилия: {user.last_name}'
+            #message += f'\nИмя: {user.first_name}'
+            #message += f'\nФамилия: {user.last_name}'
             message += f'\nЛогин: {user.username}'
             message += f'\nАдрес доставки: {user.profile.address}'
             message += f'\nТип аккаунта: {user.profile.type}'
 
         update.message.reply_text(message)
 
+    @save_query
+    def _address(self, update, context):
+        """Арес пользователя
+        """
+        c = Profile.objects.filter(telegram_id=update.message.chat.id).count()
+        if c == 0:
+            # Пользователь не создан
+            message = 'Кажется, вы ещё не зарегистрировались в системе. Нажмите /register для продолжения.'
+        else:
+            user = Profile.objects.get(telegram_id=update.message.chat.id)
+            user = User.objects.get(id=user.id)
+
+            message = 'Ваш текущий адрес, указанный в системе:'
+            message += '\n\n'
+            message += f'----\n{user.profile.address}\n----'
+            message += '\n\n'
+            message += 'Если данный адрес некорректный, введите новый. Если всё верно, введите команду /cancel'
+            update.message.reply_text(message)
+            return self.ADDRESS_B
+
+    @save_query
+    def _address_step_b(self, update, context):
+        address = update.message.text.lower().strip()
+        if '/cancel' == address:
+            message = 'Адрес не изменён.'
+            update.message.reply_text(message)
+            return ConversationHandler.END
+        else:
+            c = Profile.objects.filter(telegram_id=update.message.chat.id).count()
+            if c == 0:
+                # Пользователь не создан
+                message = 'Кажется, вы ещё не зарегистрировались в системе. Нажмите /register для продолжения.'
+                return ConversationHandler.END
+            else:
+                user = Profile.objects.get(telegram_id=update.message.chat.id)
+                user = User.objects.get(id=user.id)
+                user.profile.address = address
+                user.save()
+                message = 'Изменения сохранены!'
+                update.message.reply_text(message)
+                return ConversationHandler.END
+
+    @save_query
     def _register_step_a(self, update, context):
         """Регистрация нового бесплатного покупателя:
         Шаг 1: Поле для телефона
@@ -107,7 +171,6 @@ class Commands(object):
             message = 'Вы уже зарегистрированы. Начните искать товары, просто набрав нужное название!'
             reply_markup=ReplyKeyboardRemove()
         else:
-            print('start registrtion')
             message = '*Регистрация*'
             message += '\nДля регистрации вам нужно будет указать телефон и электронную почту. '
             message += 'После регистрации вы получите пароль.'
@@ -121,12 +184,12 @@ class Commands(object):
             parse_mode=ParseMode.MARKDOWN)
         return self.STEP_B
 
+    @save_query
     def _register_step_b(self, update, context):
         """Регистрация нового бесплатного покупателя:
         Шаг 2: Поле для электропочты
         """
         phone_number = update.message.contact.phone_number
-        print(phone_number)
         if phone_number is not None:
             if Profile.objects.filter(phone=phone_number):
                 # Данный номер уже существует в системе
@@ -144,6 +207,7 @@ class Commands(object):
             update.message.reply_text(message, reply_markup=ReplyKeyboardRemove())
             return ConversationHandler.END
 
+    @save_query
     def _register_step_c(self, update, context):
         """Регистрация нового бесплатного покупателя:
         Шаг 3: Сохранение результата, выдаётся пароль
@@ -181,9 +245,12 @@ class Commands(object):
                 new_user.save()
                 message = 'Поздравляем! Вы успешно зарегистрировались в системе.'
                 message += ' Теперь вы можете осуществлять поиск по товарам и заказывать то, что вам нужно.'
-                message += '\n\nВаши учётные данные'
+                message += '\n\nВаши учётные данные:'
                 message += f'\nЛогин: {username}'
                 message += f'\nПароль: {password}'
+
+                message += 'Вы также можете указать свой адрес для доставки товаров.'
+                message += 'Для этого воспользуйтесь командой /address'
 
         else:
             message = 'Введён некорректный адрес почты. Попробуйте заново: /register'
@@ -191,7 +258,15 @@ class Commands(object):
         update.message.reply_text(message)
         return ConversationHandler.END
 
+    @save_query
     def _cancel(self, update, context):
+        """Отмена последовательного диалога
+        """
+        update.message.reply_text('Отмена', reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+
+    @save_query
+    def _cancel_address(self, update, context):
         """Отмена последовательного диалога
         """
         update.message.reply_text('Отмена', reply_markup=ReplyKeyboardRemove())

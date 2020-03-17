@@ -10,6 +10,8 @@ from webpanel.models.product import Product
 from webpanel.models.order import Order
 from webpanel.models.profile import Profile
 
+from telegram_bot.decorator import save_query
+
 class Search(object):
     """Поиск по товарам
     """
@@ -27,11 +29,13 @@ class Search(object):
         dp.add_handler(MessageHandler(Filters.all, self._results))
 
 
+    @save_query
     def _search(self, update, context) -> None:
         """Поиск
         """
         update.message.reply_text('Напишите название товара, и мы выведем вам результат поиска.')
 
+    @save_query
     def _results(self, update, context) -> None:
         """Результаты поиска для бесплатного покупателя
         """
@@ -57,6 +61,7 @@ class Search(object):
             message,
             parse_mode=ParseMode.MARKDOWN)
 
+    @save_query
     def _add_to_order(self, update, context) -> None:
         """Добавление товара в заказ
         """

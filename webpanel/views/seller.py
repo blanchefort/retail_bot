@@ -1,6 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from openpyxl import Workbook
+from collections import Counter
 
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
@@ -50,7 +51,34 @@ def index(request):
     context.update({'orders_closed': len(orders_closed)})
 
     # Топ-5 товаров
+    products = Order.objects.filter(product__user=request.user).exclude(status=0).exclude(status=5)
+    product_data = {}
+    for item in products:
+        if item.product.id in product_data:
+            product_data[item.product.id] += item.product_count
+        else:
+            product_data[item.product.id] = item.product_count
+
+    collection = Counter(product_data).most_common(5)
+    top_products = []
+    for c in collection:
+        p = {
+            'title': Product.objects.get(id=c[0]).title,
+            'count': c[1]
+        }
+        top_products.append(p)
+    context.update({'top_products': top_products})
+
+    # Хронологическая выборка
+    startdate = datetime.today()
+    enddate = startdate + timedelta(days=30)
+    result = Order.objects.filter(product__user=request.user).filter(bill_date__range=[startdate, enddate])
+    context.update({'result': result})
     
+    # Всплывающее окно про новый заказ
+    if orders_new.count() > 0:
+        messages.info(request, f'У вас имеются новые заказы.')
+
     return TemplateResponse(request, 'seller/index.html', context=context)
 
 
