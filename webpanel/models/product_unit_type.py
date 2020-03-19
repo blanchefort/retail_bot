@@ -11,14 +11,18 @@ class ProductUnitType(models.Model):
     name = models.CharField(
         max_length=20,
         verbose_name='Наименование ед. изм.',
-        default='ед.изм.',
+        #default='ед.изм.',
         #unique=True
+        default=None,
+        null=True
     )
     short = models.CharField(
         max_length=10,
         verbose_name='Краткое наименование',
-        default='ед.изм.',
+        #default='ед.изм.',
         #unique=True
+        default=None,
+        null=True
     )
 
     def __str__(self):

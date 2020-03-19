@@ -1,0 +1,42 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'manager/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <p>После добавления новой категории перейдите в раздел &laquo;Разметка данных&raquo; и выберите хотя бы 20&ndash;30 товаров для этой категории. Благодаря этому система научтися понимать, какие товары нужно относить к данной категории.</p>
+                    <form class="forms-sample" method="post">
+                      {% csrf_token %}
+                      {% bootstrap_form form layout='inline' %}
+                      <button type="submit" class="btn btn-primary mr-2">Создать</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

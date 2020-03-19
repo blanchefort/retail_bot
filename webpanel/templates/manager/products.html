@@ -1,0 +1,82 @@
+{% load bootstrap4 %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Retail Bot</title>
+        {% bootstrap_css %}
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/vendors/css/vendor.bundle.base.css' %}">
+        <link rel="stylesheet" href="{% static 'Stellar-master/css/style.css' %}">
+        <link rel="shortcut icon" href="{% static 'Stellar-master/images/favicon.png' %}" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- SIDEBAR -->
+      {% include 'manager/sidebar.html' %}
+        <div class="main-panel">
+          <div class="content-wrapper">
+            {% bootstrap_messages %}
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h3>Поиск</h3>
+                    <form method="post" class="search-form d-none d-md-block">
+                      {% csrf_token %}
+                      <div class="form-group">
+                        <div class="input-group">
+                          <input type="text" name="q" class="form-control" placeholder="Введите название товара">
+                          <div class="input-group-append">
+                            <button class="btn btn-sm btn-primary" type="submit">Поиск</button>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    {% if query %}
+                    <h3 class="mb-5">Список найденных товаров ({{count}} шт.)
+                      <br><small><a href="{% url 'm_products' %}">К списку всех товаров</a></small>
+                    </h3>
+                    {%else%}
+                    <h3 class="mb-5">Список активных товаров ({{count}} шт.)</h3>
+                    {%endif%}
+                        {% for product in products %}
+                        <div class="card bg-light mb-5">
+                          <div class="card-header"><h4>{{product.title}}</h4></div>
+                          <div class="card-body">
+                            <h3><span class="badge badge-secondary">{{product.price}}&nbsp;₸</span></h3>
+                            <p>Поставщик: {{product.user.profile.company_name}} ({{product.user}}) ||
+                              Категория: {{product.category}}
+                            </p>
+                          </div>
+                        </div>
+                        {% endfor %}
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="float-right">
+                              {% bootstrap_pagination products size='large' %}
+                            </div>
+                          </div>
+                        </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          {% include 'footer.html' %}
+        </div>
+  </body>
+</html>

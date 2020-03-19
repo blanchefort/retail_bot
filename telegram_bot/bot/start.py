@@ -10,6 +10,7 @@ from telegram.ext import Updater
 from telegram.ext import DictPersistence
 from telegram.ext import CommandHandler
 from telegram.ext import Filters
+from telegram import ParseMode
 
 from .commands import Commands
 from .search import Search
@@ -18,6 +19,8 @@ from .catalog import Catalog
 
 from webpanel.models.seller_bill import SellerBill
 from webpanel.models.transporter_bill import Delivery
+
+from telegram_bot.models import Messages
 
 class StartBot(object):
     """Запуск бота
@@ -79,7 +82,12 @@ class StartBot(object):
 
         # Работа по расписанию
         j = self.updater.job_queue
-        job_minute = j.run_repeating(self._timer_handler, interval=60, first=0)
+        job_minute = j.run_repeating(self._timer_handler, interval=5, first=0)
+        # Сообщения от администрации
+        job_messages = j.run_repeating(
+            self._system_messages_handler,
+            interval=settings.TELEGRAM_SCHEDULE_TIME,
+            first=0)
 
     def _restart(self, update, context):
         """Рестарт бота
@@ -136,5 +144,15 @@ class StartBot(object):
             b.reseived_flag = 1
             b.save()
 
-        # Отправляем сообщения от администрации сервера,
-        # сдалеть отдельным методом
+
+    def _system_messages_handler(self, context):
+        """Отправляем сообщения от администрации сервера,
+        """
+        messages = Messages.objects.filter(reseived_flag=0)
+        for m in messages:
+            context.bot.send_message(
+                chat_id=m.chat_id,
+                text=m.message,
+                parse_mode=ParseMode.MARKDOWN)
+            m.reseived_flag = 1
+            m.save()

@@ -8,11 +8,13 @@ from .models.product import Product
 from .models.order import Order
 from .models.seller_bill import SellerBill
 from .models.transporter_bill import Delivery
+from .models.system_bill import SystemBill
 
 admin.site.register(ProductCategory)
 admin.site.register(Order)
 admin.site.register(SellerBill)
 admin.site.register(Delivery)
+admin.site.register(SystemBill)
 
 
 @admin.register(ProductUnitType)

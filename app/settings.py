@@ -157,4 +157,4 @@ TELEGRAM_URL = 'https://api.telegram.org/bot'
 TELEGRAM_TOKEN = '904927923:AAHzHA4ae-kvJcTVum_PGWhnRE1rABadKVY'
 TELEGRAM_PROXY_URL = 'http://telegg.ru/orig/bot'
 
-TELEGRAM_PICKLE_PATH = os.path.join(MEDIA_DIR, 'telegram.pickle')
+TELEGRAM_SCHEDULE_TIME = 60

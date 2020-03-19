@@ -18,6 +18,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 from webpanel.views import index, seller, transporter
+from webpanel.views.manager import index as manager_index
+from webpanel.views.manager import products as manager_products
+from webpanel.views.manager import sellers as manager_sellers
+from webpanel.views.manager import transporters as manager_tr
+from webpanel.views.manager import buyers as manager_buyers
+from webpanel.views.manager import messages
 
 urlpatterns = [
     # ENTER
@@ -49,6 +55,29 @@ urlpatterns = [
     path('tr/about/<int:order_number>', transporter.about, name='tr_about'),
     path('tr/confirmed/<int:order_number>', transporter.confirmed_order, name='tr_confirmed'),
     path('tr/close/<int:order_number>', transporter.close_order, name='tr_close'),
+    # MANAGER
+    path('manager/', manager_index.index, name='m_index'),
+    path('manager/categories/', manager_products.categories, name='m_categories'),
+    path('manager/categories/add', manager_products.add_new_category, name='m_add_cat'),
+    path('manager/units/', manager_products.units, name='m_units'),
+    path('manager/products/', manager_products.products, name='m_products'),
+
+    path('manager/sellers/', manager_sellers.index, name='m_sellers'),
+    path('manager/sellers/deactivate/<int:uid>', manager_sellers.deactivate, name='m_deactivate'),
+    path('manager/sellers/activate/<int:uid>', manager_sellers.activate, name='m_activate'),
+    path('manager/sellers/prolong/<int:uid>', manager_sellers.prolong, name='m_prolong'),
+
+    path('manager/tr/', manager_tr.index, name='m_transporters'),
+    path('manager/tr/deactivate/<int:uid>', manager_tr.deactivate, name='tr_deactivate'),
+    path('manager/tr/activate/<int:uid>', manager_tr.activate, name='tr_activate'),
+    path('manager/tr/prolong/<int:uid>', manager_tr.prolong, name='tr_prolong'),
+
+    path('manager/buyers/', manager_buyers.index, name='m_buyers'),
+    path('manager/buyers/deactivate/<int:uid>', manager_buyers.deactivate, name='b_deactivate'),
+    path('manager/buyers/activate/<int:uid>', manager_buyers.activate, name='b_activate'),
+    path('manager/buyers/prolong/<int:uid>', manager_buyers.prolong, name='b_prolong'),
+    # MESSAGES
+    path('manager/messages/', messages.index, name='m_messages'),
 ]
 
 if settings.DEBUG:

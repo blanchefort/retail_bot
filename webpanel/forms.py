@@ -4,6 +4,7 @@ from django.core.validators import FileExtensionValidator
 from webpanel.models.profile import Profile
 from webpanel.models.price_list import PriceLists
 from webpanel.models.seller_bill import SellerBill
+from webpanel.models.product_category import ProductCategory
 
 class UserForm(forms.ModelForm):
     """Форма создания нового пользователя
@@ -159,3 +160,11 @@ class ConfirmTransporterForm(forms.Form):
     указание стоимости доставки.
     """
     price = forms.CharField(label='Укажите ваши стоимость доставки')
+
+
+class CategoryForm(forms.ModelForm):
+    """Создание новой категории товаров менеджером
+    """
+    class Meta:
+        model = ProductCategory
+        fields = ('name',)

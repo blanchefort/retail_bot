@@ -48,7 +48,7 @@ def select_profile(request):
             return redirect('seller_index')
         elif request.user.profile.type == 5:
             # Менеджер сервиса
-            pass
+            return redirect('m_index')
         else:
             raise PermissionDenied
 
