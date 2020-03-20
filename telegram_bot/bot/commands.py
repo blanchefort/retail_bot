@@ -27,8 +27,8 @@ class Commands(object):
     /settings — (по возможности) возвращает список возможных настроек и команды для их изменения.
     """
     def __init__(self, updater: Updater) -> None:
-        
-        
+        self.ADDRESS_B = range(1)
+        self.STEP_B, self.STEP_C = range(2)
         self.updater = updater
         dp = updater.dispatcher
 
@@ -37,7 +37,7 @@ class Commands(object):
         dp.add_handler(CommandHandler('help', self._help))
         dp.add_handler(CommandHandler('settings', self._settings))
         
-        self.STEP_B, self.STEP_C = range(2)
+        
         registration_handler = ConversationHandler(
             entry_points=[CommandHandler('register', self._register_step_a)],
             states={
@@ -49,7 +49,7 @@ class Commands(object):
             persistent=True
         )
 
-        self.ADDRESS_B = range(1)
+        
         address_handler = ConversationHandler(
             entry_points=[CommandHandler('address', self._address)],
             states={
@@ -60,9 +60,10 @@ class Commands(object):
             persistent=True
         )
 
+        
         dp.add_handler(registration_handler)
         dp.add_handler(address_handler)
-
+        
 
     @save_query
     def _start(self, update, context) -> None:
@@ -119,7 +120,7 @@ class Commands(object):
 
         update.message.reply_text(message)
 
-    @save_query
+    #@save_query
     def _address(self, update, context):
         """Арес пользователя
         """
@@ -139,7 +140,7 @@ class Commands(object):
             update.message.reply_text(message)
             return self.ADDRESS_B
 
-    @save_query
+    #@save_query
     def _address_step_b(self, update, context):
         address = update.message.text.lower().strip()
         if '/cancel' == address:
@@ -161,7 +162,7 @@ class Commands(object):
                 update.message.reply_text(message)
                 return ConversationHandler.END
 
-    @save_query
+    #@save_query
     def _register_step_a(self, update, context):
         """Регистрация нового бесплатного покупателя:
         Шаг 1: Поле для телефона
@@ -184,7 +185,7 @@ class Commands(object):
             parse_mode=ParseMode.MARKDOWN)
         return self.STEP_B
 
-    @save_query
+    #@save_query
     def _register_step_b(self, update, context):
         """Регистрация нового бесплатного покупателя:
         Шаг 2: Поле для электропочты
@@ -207,7 +208,7 @@ class Commands(object):
             update.message.reply_text(message, reply_markup=ReplyKeyboardRemove())
             return ConversationHandler.END
 
-    @save_query
+    #@save_query
     def _register_step_c(self, update, context):
         """Регистрация нового бесплатного покупателя:
         Шаг 3: Сохранение результата, выдаётся пароль
@@ -219,26 +220,16 @@ class Commands(object):
             if User.objects.filter(email=text):
                 message = 'Такой адрес электронной почты уже зарегистрирован в системе. Попробуйте заново с другой почтой: /register'
             else:
-                # Все проверки закончены, регистрируем нового пользователя
-                # if User.objects.filter(username=update.message.chat.username):
-                #     username = context.user_data['phone_number']
-                # else:
-                # if len(update.message.chat.username) > 3:
-                #     username = update.message.chat.username
-                # else:
-                #     username = context.user_data['phone_number']
-
-                # if update.message.chat.username:
-                #     #
                 username = context.user_data['phone_number']
 
                 new_user = User(username=username, email=text)
+
                 password = User.objects.make_random_password()
                 new_user.set_password(password)
                 new_user.last_name = update.message.chat.last_name or ''
                 new_user.first_name = update.message.chat.first_name or ''
+                # может не сохранить пользователя, если уже есть такой логин
                 new_user.save()
-
                 new_user.profile.type = 1
                 new_user.profile.phone = context.user_data['phone_number']
                 new_user.profile.telegram_id = update.message.chat.id
@@ -258,14 +249,14 @@ class Commands(object):
         update.message.reply_text(message)
         return ConversationHandler.END
 
-    @save_query
+    #@save_query
     def _cancel(self, update, context):
         """Отмена последовательного диалога
         """
         update.message.reply_text('Отмена', reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
 
-    @save_query
+    #@save_query
     def _cancel_address(self, update, context):
         """Отмена последовательного диалога
         """
