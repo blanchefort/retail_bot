@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from webpanel.models.profile import Profile
 
 from telegram_bot.decorator import save_query
+from .menu import menu_kb
 
 class Commands(object):
     """обработка стандартных команд
@@ -36,6 +37,9 @@ class Commands(object):
         dp.add_handler(CommandHandler('start', self._start))
         dp.add_handler(CommandHandler('help', self._help))
         dp.add_handler(CommandHandler('settings', self._settings))
+        dp.add_handler(MessageHandler(
+            Filters.regex(r'^🛠 Настройки$'),
+            self._settings))
         
         
         registration_handler = ConversationHandler(
@@ -76,7 +80,7 @@ class Commands(object):
         message += 'Для того, чтобы заказать товары, '
         message += 'вам необходимо будет пройти авторизацию, открыв доступ к своему номеру телефона. '
         message += 'Пройдите авторизацию прямо сейчас: /register'
-        update.message.reply_text(message)
+        update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     @save_query
     def _help(self, update, context) -> None:
@@ -94,7 +98,7 @@ class Commands(object):
         message += '\n'
         message += '/help — помощь.'
         
-        update.message.reply_text(message)
+        update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     @save_query
     def _settings(self, update, context) -> None:
@@ -118,7 +122,9 @@ class Commands(object):
             message += f'\nАдрес доставки: {user.profile.address}'
             message += f'\nТип аккаунта: {user.profile.type}'
 
-        update.message.reply_text(message)
+            message += f'\nДля изменения адреса доставки наберите команду /address'
+
+        update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     #@save_query
     def _address(self, update, context):
@@ -128,6 +134,7 @@ class Commands(object):
         if c == 0:
             # Пользователь не создан
             message = 'Кажется, вы ещё не зарегистрировались в системе. Нажмите /register для продолжения.'
+            update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
         else:
             user = Profile.objects.get(telegram_id=update.message.chat.id)
             user = User.objects.get(id=user.id)
@@ -137,7 +144,7 @@ class Commands(object):
             message += f'----\n{user.profile.address}\n----'
             message += '\n\n'
             message += 'Если данный адрес некорректный, введите новый. Если всё верно, введите команду /cancel'
-            update.message.reply_text(message)
+            update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
             return self.ADDRESS_B
 
     #@save_query
@@ -152,6 +159,7 @@ class Commands(object):
             if c == 0:
                 # Пользователь не создан
                 message = 'Кажется, вы ещё не зарегистрировались в системе. Нажмите /register для продолжения.'
+                update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
                 return ConversationHandler.END
             else:
                 user = Profile.objects.get(telegram_id=update.message.chat.id)
@@ -159,7 +167,7 @@ class Commands(object):
                 user.profile.address = address
                 user.save()
                 message = 'Изменения сохранены!'
-                update.message.reply_text(message)
+                update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
                 return ConversationHandler.END
 
     #@save_query
@@ -253,12 +261,12 @@ class Commands(object):
     def _cancel(self, update, context):
         """Отмена последовательного диалога
         """
-        update.message.reply_text('Отмена', reply_markup=ReplyKeyboardRemove())
+        update.message.reply_text('Отмена', reply_markup=ReplyKeyboardMarkup(menu_kb()))
         return ConversationHandler.END
 
     #@save_query
     def _cancel_address(self, update, context):
         """Отмена последовательного диалога
         """
-        update.message.reply_text('Отмена', reply_markup=ReplyKeyboardRemove())
+        update.message.reply_text('Отмена', reply_markup=ReplyKeyboardMarkup(menu_kb()))
         return ConversationHandler.END

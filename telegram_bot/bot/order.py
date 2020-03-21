@@ -15,6 +15,7 @@ from webpanel.models.order import Order as OrderModel
 from webpanel.models.profile import Profile
 
 from telegram_bot.decorator import save_query
+from .menu import menu_kb
 
 class Order(object):
     """Формирование заказа
@@ -25,15 +26,29 @@ class Order(object):
 
         # Регистрируем команды
         dp.add_handler(CommandHandler('order', self._order))
+        dp.add_handler(MessageHandler(
+            Filters.regex(r'^🛒 Корзина$'),
+            self._order))
 
         dp.add_handler(MessageHandler(
             Filters.regex(r'^Отправить заявку на исполнение$'),
             self._execute_order))
         dp.add_handler(MessageHandler(
+            Filters.regex(r'^✉ Отправить заявку$'),
+            self._execute_order))
+
+        dp.add_handler(MessageHandler(
             Filters.regex(r'^Удалить заявку полностью$'),
             self._delete_order))
         dp.add_handler(MessageHandler(
+            Filters.regex(r'^🗑 Удалить заявку$'),
+            self._delete_order))
+
+        dp.add_handler(MessageHandler(
             Filters.regex(r'^Список заявок в исполнении$'),
+            self._order_list))
+        dp.add_handler(MessageHandler(
+            Filters.regex(r'^📄 Заявки в исполнении$'),
             self._order_list))
 
         # Изменение объёма позиции
@@ -74,10 +89,9 @@ class Order(object):
         if order_count == 0:
             # Нет заказов
             message = 'Вы пока не добавили товары в заявку. Выберите что-нибудь с помощью поиска: /search Или посмотрите список заявок в исполнении.'
-            reply_keyboard = [
-                ['Список заявок в исполнении']
-            ]
-            update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(reply_keyboard))
+            
+            update.message.reply_text(message,
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
         else:
             # Товары есть, выводим их:
             order = OrderModel.objects.filter(user=user).filter(status=0)
@@ -91,8 +105,8 @@ class Order(object):
                 message = f'\n\n📦 <b>{item.product.title}</b>'
                 message += f'\nЦена: {item.product.price} ₸ за {item.product.unit.short}'
                 message += f'\nОбъём товара: {int(item.product_count)} {item.product.unit.short}'
-                message += f'\nИзменить объём товара: /change_product_count_{item.id}'
-                message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+                #message += f'\nИзменить объём товара: /change_product_count_{item.id}'
+                message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
                 keyboard = [
                     [
                         InlineKeyboardButton('+1', callback_data=f'chpk_1_{item.id}'),
@@ -113,11 +127,7 @@ class Order(object):
                     parse_mode=ParseMode.HTML,
                     reply_markup=reply_markup)
 
-            reply_keyboard = [
-                ['Отправить заявку на исполнение'],
-                ['Удалить заявку полностью'],
-                ['Список заявок в исполнении']
-            ]
+            reply_keyboard = menu_kb()
             message = 'После проверки заказа не забудьте его отправить на исполнение!'
             update.message.reply_text(
                 message,
@@ -134,9 +144,25 @@ class Order(object):
         if order_count > 0:
             # Заявка не пуста, отправляем её продавцу (или продавцам)
             OrderModel.objects.filter(user=user).filter(status=0).update(status=1)
+
+            # Список товаров в заявке:
+            message = 'Заявка упешно отправлена на исполнение.'
+            message += '\n\nСписок заказанных товаров:'
+            total_sum = 0
+            for item in OrderModel.objects.filter(user=user).filter(status=1):
+                message += f'\n📦 *{item.product.title}*'
+                message += f'\nЦена: {item.product.price} ₸'
+                message += f'\nКоличество: {item.product_count} за {item.product.unit.short}'
+                product_sum = round(item.product.price * item.product_count, 2)
+                total_sum += product_sum
+                message += f'\nСумма: {product_sum} ₸'
+                message += f'\n\n'
+            message += '----'
+            message += f'\n*Общая сумма: {total_sum} ₸*'
             update.message.reply_text(
-                'Заявка упешно отправлена на исполнение.',
-                reply_markup=ReplyKeyboardRemove())
+                message,
+                reply_markup=ReplyKeyboardMarkup(menu_kb()),
+                parse_mode=ParseMode.MARKDOWN)
         else:
             update.message.reply_text('Ваша заявка пуста. Нечего отправлять.')
 
@@ -153,7 +179,7 @@ class Order(object):
             OrderModel.objects.filter(user=user).filter(status=0).update(status=5)
             update.message.reply_text(
                 'Заявка удалена.',
-                reply_markup=ReplyKeyboardRemove())
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
         else:
             update.message.reply_text('Ваша заявка пуста. Нечего удалять.')
 
@@ -175,7 +201,8 @@ class Order(object):
 
         update.message.reply_text(
             message,
-            parse_mode=ParseMode.MARKDOWN)
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     def _delete_product(self, update, context) -> None:
         """Удалить: delete_product_{item.id}
@@ -201,8 +228,7 @@ class Order(object):
         message = f'\n\n📦 <b>{order.product.title}</b>'
         message += f'\nЦена: {order.product.price} ₸ за {order.product.unit.short}'
         message += f'\nОбъём товара: <b>{int(order.product_count)}</b> {order.product.unit.short}'
-        message += f'\nИзменить объём товара: /change_product_count_{order.id}'
-        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
         keyboard = [
             [
                 InlineKeyboardButton('+1', callback_data=f'chpk_1_{order.id}'),
@@ -237,8 +263,7 @@ class Order(object):
         message = f'\n\n📦 <b>{order.product.title}</b>'
         message += f'\nЦена: {order.product.price} ₸ за {order.product.unit.short}'
         message += f'\nОбъём товара: <b>{int(order.product_count)}</b> {order.product.unit.short}'
-        message += f'\nИзменить объём товара: /change_product_count_{order.id}'
-        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
         keyboard = [
             [
                 InlineKeyboardButton('+1', callback_data=f'chpk_1_{order.id}'),
@@ -273,8 +298,7 @@ class Order(object):
         message = f'\n\n📦 <b>{order.product.title}</b>'
         message += f'\nЦена: {order.product.price} ₸ за {order.product.unit.short}'
         message += f'\nОбъём товара: <b>{int(order.product_count)}</b> {order.product.unit.short}'
-        message += f'\nИзменить объём товара: /change_product_count_{order.id}'
-        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
         keyboard = [
             [
                 InlineKeyboardButton('+1', callback_data=f'chpk_1_{order.id}'),
@@ -311,8 +335,7 @@ class Order(object):
         message = f'\n\n📦 <b>{order.product.title}</b>'
         message += f'\nЦена: {order.product.price} ₸ за {order.product.unit.short}'
         message += f'\nОбъём товара: <b>{int(order.product_count)}</b> {order.product.unit.short}'
-        message += f'\nИзменить объём товара: /change_product_count_{order.id}'
-        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
         keyboard = [
             [
                 InlineKeyboardButton('+1', callback_data=f'chpk_1_{order.id}'),
@@ -349,8 +372,7 @@ class Order(object):
         message = f'\n\n📦 <b>{order.product.title}</b>'
         message += f'\nЦена: {order.product.price} ₸ за {order.product.unit.short}'
         message += f'\nОбъём товара: <b>{int(order.product_count)}</b> {order.product.unit.short}'
-        message += f'\nИзменить объём товара: /change_product_count_{order.id}'
-        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
         keyboard = [
             [
                 InlineKeyboardButton('+1', callback_data=f'chpk_1_{order.id}'),
@@ -387,8 +409,7 @@ class Order(object):
         message = f'\n\n📦 <b>{order.product.title}</b>'
         message += f'\nЦена: {order.product.price} ₸ за {order.product.unit.short}'
         message += f'\nОбъём товара: <b>{int(order.product_count)}</b> {order.product.unit.short}'
-        message += f'\nИзменить объём товара: /change_product_count_{order.id}'
-        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить параметры заказа:'
+        message += f'\n\nВоспользуйтесь кнопками ниже, чтобы изменить объём товара (увеличить или уменьшить):'
         keyboard = [
             [
                 InlineKeyboardButton('+1', callback_data=f'chpk_1_{order.id}'),

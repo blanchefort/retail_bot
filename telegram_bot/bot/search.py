@@ -11,6 +11,7 @@ from webpanel.models.order import Order
 from webpanel.models.profile import Profile
 
 from telegram_bot.decorator import save_query
+from .menu import menu_kb
 
 class Search(object):
     """Поиск по товарам
@@ -33,7 +34,9 @@ class Search(object):
     def _search(self, update, context) -> None:
         """Поиск
         """
-        update.message.reply_text('Напишите название товара, и мы выведем вам результат поиска.')
+        update.message.reply_text(
+            'Напишите название товара, и мы выведем вам результат поиска.',
+            reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     @save_query
     def _results(self, update, context) -> None:
@@ -93,4 +96,5 @@ class Search(object):
 
         update.message.reply_text(
             message,
-            parse_mode=ParseMode.MARKDOWN)
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=ReplyKeyboardMarkup(menu_kb()))

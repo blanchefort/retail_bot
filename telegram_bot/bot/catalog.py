@@ -26,6 +26,12 @@ class Catalog(object):
 
         # Старт каталога
         dp.add_handler(CommandHandler('catalog', self._catalog))
+        dp.add_handler(MessageHandler(
+            Filters.regex(r'^📂 Каталог$'),
+            self._catalog))
+        # dp.add_handler(CallbackQueryHandler(
+        #     callback=self._catalog,
+        #     pattern='return_to_catalog'))
 
         # Выбор категории каталога, страница 1
         # catalog_category_CATEGORY_PAGE
@@ -100,13 +106,10 @@ class Catalog(object):
                     callback_data=f'catalog_category_{category_id}_{page.paginator.num_pages}')
                 keyboard.append(button)
 
+            #return_btn = InlineKeyboardButton('⬅️ К списку категорий', callback_data='return_to_catalog')
 
-
-            #button = [InlineKeyboardButton('Пагинация', callback_data=f'catalog_category_{category_id}_1')]
-            #keyboard.append(button)
-
+            #reply_markup = InlineKeyboardMarkup([keyboard, [return_btn]])
             reply_markup = InlineKeyboardMarkup([keyboard])
-
 
             query.edit_message_text(
                 message,
