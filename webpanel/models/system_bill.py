@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import timedelta, datetime
+import pytz
 
 
 class SystemBill(models.Model):
@@ -43,3 +45,31 @@ class SystemBill(models.Model):
     class Meta:
         verbose_name = 'Оплаченный аккаунт'
         verbose_name_plural = 'оплаченные аккаунты'
+
+
+def check_user_type(user):
+    """Проверка типа пользователя.
+    Если у пользователя активирован платный период, выставляется 
+    profile.type = 2.
+    Если платный период истёк, выставляется 
+    profile.type = 1
+    """
+    utc=pytz.UTC
+
+    if SystemBill.objects.filter(user=user):
+        last_payment = SystemBill.objects.filter(user=user).last()
+
+        date_end = last_payment.date_end.replace(tzinfo=utc)
+        date_now = datetime.now().replace(tzinfo=utc)
+
+        if date_end > date_now:
+            # Окончание периода не наступило, значит - тип 2
+            user.profile.type = 2
+            user.save()
+        elif date_end < date_now:
+            # Период закончился, выставляем тип 1
+            user.profile.type = 1
+            user.save()
+    else:
+        user.profile.type = 1
+        user.save()

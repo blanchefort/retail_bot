@@ -16,6 +16,7 @@ from validate_email import validate_email
 
 from django.contrib.auth.models import User
 from webpanel.models.profile import Profile
+from webpanel.models.system_bill import SystemBill, check_user_type
 
 from telegram_bot.decorator import save_query
 from .menu import menu_kb
@@ -67,6 +68,10 @@ class Commands(object):
         
         dp.add_handler(registration_handler)
         dp.add_handler(address_handler)
+
+        dp.add_handler(CallbackQueryHandler(
+            callback=self._get_bill,
+            pattern=r'^get_bill$'))
         
 
     @save_query
@@ -112,19 +117,34 @@ class Commands(object):
         else:
             user = Profile.objects.get(telegram_id=update.message.chat.id)
             user = User.objects.get(id=user.id)
+            check_user_type(user)
+            
             message = 'Ваши данные:'
         
             message += f'\nТелефон: {user.profile.phone}'
             message += f'\nПочта: {user.email}'
-            #message += f'\nИмя: {user.first_name}'
-            #message += f'\nФамилия: {user.last_name}'
             message += f'\nЛогин: {user.username}'
             message += f'\nАдрес доставки: {user.profile.address}'
-            message += f'\nТип аккаунта: {user.profile.type}'
+            if user.profile.type == 1:
+                message += f'\nТип аккаунта: Бесплатный'
+                keyboard = [
+                    [InlineKeyboardButton('Перейти на платный аккаунт', callback_data='get_bill')]
+                ]
+            elif user.profile.type == 2:
+                message += f'\nТип аккаунта: Платный'
+                payment = SystemBill.objects.filter(user=user).last()
+                date_end = payment.date_end.strftime('%d.%m.%Y %H:%m')
+                message += f'\nОкончание платного периода: {date_end}'
+                keyboard = [
+                    [InlineKeyboardButton('Продлить платный аккаунт', callback_data='get_bill')]
+                ]
 
             message += f'\nДля изменения адреса доставки наберите команду /address'
 
-        update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
+        # Кнопки оплаты сервиса
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        update.message.reply_text(message, reply_markup=reply_markup)
 
     #@save_query
     def _address(self, update, context):
@@ -270,3 +290,28 @@ class Commands(object):
         """
         update.message.reply_text('Отмена', reply_markup=ReplyKeyboardMarkup(menu_kb()))
         return ConversationHandler.END
+
+    #@save_query
+    def _get_bill(self, update, context):
+        """Получение счёта для активации платного аккаунта покупателя
+        """
+        query = update.callback_query
+        message = '''Для того, чтобы активировать платный аккаунт, вам необходимо оплатить подписку
+
+        Стоимость 1 месяца платной подписки стоит: ХХХ.
+        Преимущества платной подписки (Наверное, это надо писать не здесь, а где-то ещё, чтобы
+        покупатели видели свою выгоду).
+
+        Реквизиты для оплаты:
+        ХХХ
+        ХХХХ
+        ХХХ
+        ХХХХХХ
+        Назначение платежа: *Оплата аккаунта ХХХ*.
+
+        Платная подписка будет активирована на месяц как только поступить платёж.
+        '''
+
+        query.edit_message_text(
+            message,
+            parse_mode=ParseMode.MARKDOWN)

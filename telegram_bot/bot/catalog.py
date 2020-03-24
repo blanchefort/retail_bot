@@ -14,6 +14,7 @@ from django.core.paginator import Paginator
 from webpanel.models.profile import Profile
 from webpanel.models.product import Product
 from webpanel.models.product_category import ProductCategory
+from webpanel.models.system_bill import check_user_type
 
 from telegram_bot.decorator import save_query
 
@@ -29,9 +30,6 @@ class Catalog(object):
         dp.add_handler(MessageHandler(
             Filters.regex(r'^📂 Каталог$'),
             self._catalog))
-        # dp.add_handler(CallbackQueryHandler(
-        #     callback=self._catalog,
-        #     pattern='return_to_catalog'))
 
         # Выбор категории каталога, страница 1
         # catalog_category_CATEGORY_PAGE
@@ -66,13 +64,29 @@ class Catalog(object):
 
         if ProductCategory.objects.filter(id=category_id):
             category = ProductCategory.objects.get(id=category_id)
-            products = Product.objects.filter(is_active=True).filter(category=category).order_by('title')
+
+            # Определяем пользователя и его тип
+            user = Profile.objects.get(telegram_id=query.message.chat.id)
+            user = User.objects.get(id=user.id)
+            check_user_type(user)
+
+            if user.profile.type == 2:
+                #Платный пользователь
+                products = self._results_for_paid_user(category)
+            else:
+                # Бесплатный пользователь
+                products = Product.objects.filter(is_active=True).filter(category=category).order_by('title')
+            
             paginator = Paginator(products, 5)
             page = paginator.get_page(page_no)
             keyboard = []
 
             message = f'📂 *{category.name}*'
-            message += f'\nВ категории позиций: *{products.count()}*'
+            if user.profile.type == 2:
+                message += 'Выбраны позиции с минимальными ценами'
+                message += f'\nОтсортированных позиций: *{len(products)}*'
+            else:
+                message += f'\nВ категории позиций: *{len(products)}*'
             message += '\n\n*Товары:*'
             for item in page:
                 message += f'\n\n📦 *{item.title}*'
@@ -115,3 +129,26 @@ class Catalog(object):
                 message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=reply_markup)
+
+    def _results_for_paid_user(self, category):
+        """Каталог для платного пользователя:
+        выбираем только минимальные цены
+        """
+        products = Product.objects.filter(is_active=True).filter(category=category).order_by('title')
+        min_prices = {}
+        for s in products:
+            if s.title in min_prices:
+                if min_prices[s.title]['price'] > s.price:
+                    min_prices[s.title]['price'] = s.price
+                    min_prices[s.title]['id'] = s.id
+            else:
+                min_prices.update({
+                        s.title: {
+                            'price': s.price,
+                            'id': s.id
+                        }
+                    })
+
+        product_list = [Product.objects.get(id=min_prices[p]['id']) for p in min_prices]
+        
+        return product_list

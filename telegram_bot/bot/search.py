@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from webpanel.models.product import Product
 from webpanel.models.order import Order
 from webpanel.models.profile import Profile
+from webpanel.models.system_bill import check_user_type
 
 from telegram_bot.decorator import save_query
 from .menu import menu_kb
@@ -43,9 +44,18 @@ class Search(object):
         """Результаты поиска для бесплатного покупателя
         """
         search_query = update.message.text
-        # В PostgreSQL можно делать более совершенный поиск
-        # https://docs.djangoproject.com/en/3.0/topics/db/search/
-        search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+        
+        user = Profile.objects.get(telegram_id=update.message.chat.id)
+        user = User.objects.get(id=user.id)
+        check_user_type(user)
+
+        if user.profile.type == 2:
+            # Для платного пользователя делаем другой поиск
+            search_result = self._results_for_paid_user(search_query)
+        else:
+            # В PostgreSQL можно делать более совершенный поиск
+            # https://docs.djangoproject.com/en/3.0/topics/db/search/
+            search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
 
         if len(search_result) == 0:
             message = 'По вашему запросу ничего не найдено.'
@@ -98,3 +108,27 @@ class Search(object):
             message,
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=ReplyKeyboardMarkup(menu_kb()))
+
+
+    def _results_for_paid_user(self, search_query):
+        """Результаты поиска для платного пользователя
+        """
+        search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+        
+        min_prices = {}
+        for s in search_result:
+            if s.title in min_prices:
+                if min_prices[s.title]['price'] > s.price:
+                    min_prices[s.title]['price'] = s.price
+                    min_prices[s.title]['id'] = s.id
+            else:
+                min_prices.update({
+                        s.title: {
+                            'price': s.price,
+                            'id': s.id
+                        }
+                    })
+
+        product_list = [Product.objects.get(id=min_prices[p]['id']) for p in min_prices]
+        print(product_list)
+        return product_list
