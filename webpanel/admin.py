@@ -25,5 +25,5 @@ class AdminProductUnitType(admin.ModelAdmin):
 @admin.register(Product)
 class AdminProduct(admin.ModelAdmin):
     list_display = ('title', 'category', 'user', 'unit', 'price',)
-    list_filter = ('title', 'category', 'user',)
-    search_fields = ('title',)
+    #list_filter = ('title', 'category', 'user',)
+    #search_fields = ('title',)
