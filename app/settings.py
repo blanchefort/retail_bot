@@ -94,7 +94,7 @@ DATABASES = {
     'default': {
       'ENGINE': 'django.db.backends.postgresql',
       # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
-      'HOST': '/handy-cache-267504:us-central1:retail-bot-test',
+      'HOST': 'handy-cache-267504:us-central1:retail-bot-test',
       'PORT': '5432',
       'NAME': 'retail-bot-test',
       'USER': 'postgres',
