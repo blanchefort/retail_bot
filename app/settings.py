@@ -95,11 +95,17 @@ DATABASES = {
         # django.db.backends.postgresql
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
-        'HOST': '/cloudsql/handy-cache-267504:us-central1:retail-bot-test',
+        'HOST': '35.188.70.65',
         'PORT': '5432',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': 'supply2020'
+        'PASSWORD': 'supply2020',
+        'OPTIONS': {
+            'sslmode': 'verify-ca',
+            'sslrootcert': os.path.join(BASE_DIR, 'serts', 'server-ca.pem'),
+            'sslcert': os.path.join(BASE_DIR, 'serts', 'client-cert.pem'),
+            'sslkey': os.path.join(BASE_DIR, 'serts', 'client-key.pem'),
+        }
     }
 }
 
