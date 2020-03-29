@@ -81,10 +81,24 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+# https://stackoverflow.com/questions/50132394/how-do-you-connect-to-google-cloud-postgresql-via-django-framework
+# https://issue.life/questions/50132394
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+      'ENGINE': 'django.db.backends.postgresql',
+      # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
+      'HOST': '/cloudsql/handy-cache-267504:us-central1:retail-bot-test',
+      'PORT': '5432',
+      'NAME': 'retail-bot-test',
+      'USER': 'postgres',
+      'PASSWORD': 'supply2020'
     }
 }
 

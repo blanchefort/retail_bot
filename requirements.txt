@@ -13,6 +13,7 @@ future==0.18.2
 jackfruit==0.12
 jdcal==1.4.1
 openpyxl==3.0.3
+psycopg2==2.8.4
 pycparser==2.19
 python-telegram-bot==12.4.2
 pytz==2019.3
