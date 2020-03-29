@@ -97,7 +97,7 @@ DATABASES = {
         # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
         'HOST': '/cloudsql/handy-cache-267504:us-central1:retail-bot-test',
         'PORT': '5432',
-        'NAME': 'retail-bot-test',
+        'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'supply2020'
     }
