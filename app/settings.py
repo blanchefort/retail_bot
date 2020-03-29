@@ -92,13 +92,14 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://issue.life/questions/50132394
 DATABASES = {
     'default': {
-      'ENGINE': 'django.db.backends.postgresql',
-      # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
-      'HOST': 'handy-cache-267504:us-central1:retail-bot-test',
-      'PORT': '5432',
-      'NAME': 'retail-bot-test',
-      'USER': 'postgres',
-      'PASSWORD': 'supply2020'
+        # django.db.backends.postgresql
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
+        'HOST': '/cloudsql/handy-cache-267504:us-central1:retail-bot-test',
+        'PORT': '5432',
+        'NAME': 'retail-bot-test',
+        'USER': 'postgres',
+        'PASSWORD': 'supply2020'
     }
 }
 
