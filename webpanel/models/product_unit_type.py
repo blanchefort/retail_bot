@@ -11,17 +11,13 @@ class ProductUnitType(models.Model):
     name = models.CharField(
         max_length=20,
         verbose_name='Наименование ед. изм.',
-        #default='ед.изм.',
-        #unique=True
-        default=None,
+        default='ед.изм.',
         null=True
     )
     short = models.CharField(
         max_length=10,
         verbose_name='Краткое наименование',
-        #default='ед.изм.',
-        #unique=True
-        default=None,
+        default='ед.изм.',
         null=True
     )
 
