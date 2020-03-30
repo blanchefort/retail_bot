@@ -57,16 +57,14 @@ class Search(object):
         # Для типа поиска: либо по sqlite, либо по postgres
         # В PostgreSQL можно делать более совершенный поиск
         # https://docs.djangoproject.com/en/3.0/topics/db/search/
+        # Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
         s_db = settings.DATABASES['default']['ENGINE']
         postgres_db = ['django.db.backends.postgresql_psycopg2', 'django.db.backends.postgresql']
 
 
         # Незарегистрированный пользователь
         if user is None:
-            if s_db in postgres_db:
-                search_result = Product.objects.filter(title__lower__icontains=search_query).filter(is_active=1)
-            else:
-                search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+            search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
 
         # Для платного пользователя делаем другой поиск
         elif user.profile.type == 2:
@@ -74,10 +72,7 @@ class Search(object):
 
         # Обычный пользователь
         else:
-            if s_db in postgres_db:
-                search_result = Product.objects.filter(title__lower__trigram_similar=search_query).filter(is_active=1)
-            else:
-                search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+            search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
 
         if len(search_result) == 0:
             message = 'По вашему запросу ничего не найдено.'
@@ -139,16 +134,7 @@ class Search(object):
     def _results_for_paid_user(self, search_query):
         """Результаты поиска для платного пользователя
         """
-        # Для типа поиска: либо по sqlite, либо по postgres
-        # В PostgreSQL можно делать более совершенный поиск
-        # https://docs.djangoproject.com/en/3.0/topics/db/search/
-        s_db = settings.DATABASES['default']['ENGINE']
-        postgres_db = ['django.db.backends.postgresql_psycopg2', 'django.db.backends.postgresql']
-
-        if s_db in postgres_db:
-            search_result = Product.objects.filter(title__lower__trigram_similar=search_query).filter(is_active=1)
-        else:
-            search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+        search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
         
         min_prices = {}
         for s in search_result:
