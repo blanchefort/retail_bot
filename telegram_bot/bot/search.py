@@ -64,7 +64,7 @@ class Search(object):
         # Незарегистрированный пользователь
         if user is None:
             if s_db in postgres_db:
-                search_result = Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
+                search_result = Product.objects.filter(title__lower__trigram_similar=search_query).filter(is_active=1)
             else:
                 search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
 
@@ -75,7 +75,7 @@ class Search(object):
         # Обычный пользователь
         else:
             if s_db in postgres_db:
-                search_result = Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
+                search_result = Product.objects.filter(title__lower__trigram_similar=search_query).filter(is_active=1)
             else:
                 search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
 
@@ -146,7 +146,7 @@ class Search(object):
         postgres_db = ['django.db.backends.postgresql_psycopg2', 'django.db.backends.postgresql']
 
         if s_db in postgres_db:
-            search_result = Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
+            search_result = Product.objects.filter(title__lower__trigram_similar=search_query).filter(is_active=1)
         else:
             search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
         
