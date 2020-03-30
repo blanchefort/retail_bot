@@ -54,7 +54,6 @@ def get_data(price_file=''):
         d = {}
         try:
             d['number'] = number
-            print(d['number'])
             point = 'B' + str(cell)
             d['product_name'] = str(sheet[point].value.strip())
             point = 'C' + str(cell)

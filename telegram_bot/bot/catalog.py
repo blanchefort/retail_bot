@@ -66,15 +66,23 @@ class Catalog(object):
             category = ProductCategory.objects.get(id=category_id)
 
             # Определяем пользователя и его тип
-            user = Profile.objects.get(telegram_id=query.message.chat.id)
-            user = User.objects.get(id=user.id)
-            check_user_type(user)
-
-            if user.profile.type == 2:
-                #Платный пользователь
-                products = self._results_for_paid_user(category)
+            if Profile.objects.filter(telegram_id=query.message.chat.id):
+                user = Profile.objects.get(telegram_id=query.message.chat.id)
+                user = User.objects.get(id=user.id)
+                check_user_type(user)
             else:
-                # Бесплатный пользователь
+                user = None
+
+            # Незарегистрированный пользователь
+            if user is None:
+                products = Product.objects.filter(is_active=True).filter(category=category).order_by('title')
+            
+            #Платный пользователь
+            elif user.profile.type == 2:
+                products = self._results_for_paid_user(category)
+            
+            # Бесплатный пользователь
+            else:
                 products = Product.objects.filter(is_active=True).filter(category=category).order_by('title')
             
             paginator = Paginator(products, 5)
@@ -82,7 +90,7 @@ class Catalog(object):
             keyboard = []
 
             message = f'📂 *{category.name}*'
-            if user.profile.type == 2:
+            if user and user.profile.type == 2:
                 message += 'Выбраны позиции с минимальными ценами'
                 message += f'\nОтсортированных позиций: *{len(products)}*'
             else:

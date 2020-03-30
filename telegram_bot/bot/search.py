@@ -5,6 +5,7 @@ from telegram.ext import MessageHandler
 from telegram.ext import Filters
 
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from webpanel.models.product import Product
 from webpanel.models.order import Order
@@ -45,17 +46,38 @@ class Search(object):
         """
         search_query = update.message.text
         
-        user = Profile.objects.get(telegram_id=update.message.chat.id)
-        user = User.objects.get(id=user.id)
-        check_user_type(user)
-
-        if user.profile.type == 2:
-            # Для платного пользователя делаем другой поиск
-            search_result = self._results_for_paid_user(search_query)
+        # Определяем пользователя и его тип
+        if Profile.objects.filter(telegram_id=update.message.chat.id):
+            user = Profile.objects.get(telegram_id=update.message.chat.id)
+            user = User.objects.get(id=user.id)
+            check_user_type(user)
         else:
-            # В PostgreSQL можно делать более совершенный поиск
-            # https://docs.djangoproject.com/en/3.0/topics/db/search/
-            search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+            user = None
+
+        # Для типа поиска: либо по sqlite, либо по postgres
+        # В PostgreSQL можно делать более совершенный поиск
+        # https://docs.djangoproject.com/en/3.0/topics/db/search/
+        s_db = settings.DATABASES['default']['ENGINE']
+        postgres_db = ['django.db.backends.postgresql_psycopg2', 'django.db.backends.postgresql']
+
+
+        # Незарегистрированный пользователь
+        if user is None:
+            if s_db in postgres_db:
+                search_result = Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
+            else:
+                search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+
+        # Для платного пользователя делаем другой поиск
+        elif user.profile.type == 2:
+            search_result = self._results_for_paid_user(search_query)
+
+        # Обычный пользователь
+        else:
+            if s_db in postgres_db:
+                search_result = Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
+            else:
+                search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
 
         if len(search_result) == 0:
             message = 'По вашему запросу ничего не найдено.'
@@ -68,7 +90,11 @@ class Search(object):
             for item in search_result:
                 message += f'\n\n📦 *{item.title}*'
                 message += f'\nЦена: {item.price} ₸ за {item.unit.short}'
-                message += f'\nДобавить в заказ: /product{item.id}'
+
+                if user is None:
+                    message += f'\nЗарегистрируйтесь, чтобы заказывать товары: /register'
+                else:
+                    message += f'\nДобавить в заказ: /product{item.id}'
 
         update.message.reply_text(
             message,
@@ -113,7 +139,16 @@ class Search(object):
     def _results_for_paid_user(self, search_query):
         """Результаты поиска для платного пользователя
         """
-        search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
+        # Для типа поиска: либо по sqlite, либо по postgres
+        # В PostgreSQL можно делать более совершенный поиск
+        # https://docs.djangoproject.com/en/3.0/topics/db/search/
+        s_db = settings.DATABASES['default']['ENGINE']
+        postgres_db = ['django.db.backends.postgresql_psycopg2', 'django.db.backends.postgresql']
+
+        if s_db in postgres_db:
+            search_result = Product.objects.filter(title__unaccent__lower__trigram_similar=search_query).filter(is_active=1)
+        else:
+            search_result = Product.objects.filter(title__icontains=search_query).filter(is_active=1)
         
         min_prices = {}
         for s in search_result:
