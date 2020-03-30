@@ -55,13 +55,12 @@ def get_data(price_file=''):
         number = 1
         try:
             d['number'] = number
-            number += 1
             point = 'B' + str(cell)
             d['product_name'] = str(sheet[point].value.strip())
             point = 'C' + str(cell)
             d['product_unit'] = str(sheet[point].value.strip())
             point = 'D' + str(cell)
-            d['product_price'] = float(sheet[point].value)
+            d['product_price'] = float(sheet[point].value.strip())
             data.append(d)
             number += 1
         except:

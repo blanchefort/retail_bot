@@ -15,7 +15,7 @@ admin.site.register(Order)
 admin.site.register(SellerBill)
 admin.site.register(Delivery)
 admin.site.register(SystemBill)
-#admin.site.register(Product)
+admin.site.register(Product)
 
 
 @admin.register(ProductUnitType)
@@ -23,8 +23,8 @@ class AdminProductUnitType(admin.ModelAdmin):
     list_display = ('name', 'short',)
 
 
-@admin.register(Product)
-class AdminProduct(admin.ModelAdmin):
-    list_display = ('title', 'category', 'user', 'unit', 'price',)
-    list_filter = ('title', 'category', 'user',)
-    search_fields = ('title',)
+# @admin.register(Product)
+# class AdminProduct(admin.ModelAdmin):
+#     list_display = ('title', 'category', 'user', 'unit', 'price',)
+#     list_filter = ('title', 'category', 'user',)
+#     search_fields = ('title',)
