@@ -77,37 +77,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'app.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-# https://stackoverflow.com/questions/50132394/how-do-you-connect-to-google-cloud-postgresql-via-django-framework
-# https://issue.life/questions/50132394
-DATABASES = {
-    'default': {
-        # django.db.backends.postgresql
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
-        'HOST': '10.33.80.3',
-        'PORT': '5432',
-        'NAME': 'retail_test',
-        'USER': 'postgres',
-        'PASSWORD': 'supply2020',
-        # 'OPTIONS': {
-        #     'sslmode': 'verify-ca',
-        #     'sslrootcert': os.path.join(BASE_DIR, 'serts', 'server-ca.pem'),
-        #     'sslcert': os.path.join(BASE_DIR, 'serts', 'client-cert.pem'),
-        #     'sslkey': os.path.join(BASE_DIR, 'serts', 'client-key.pem'),
-        # }
+if BASE_DIR == '/home/igor/scripts/retail_bot/app':
+    # local
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    # server
+    DATABASES = {
+        'default': {
+            # django.db.backends.postgresql
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
+            'HOST': '10.33.80.3',
+            'PORT': '5432',
+            'NAME': 'retail_test',
+            'USER': 'postgres',
+            'PASSWORD': 'supply2020'
+        }
+    }
 
 
 # Password validation

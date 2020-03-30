@@ -54,18 +54,16 @@ def get_data(price_file=''):
         d = {}
         number = 1
         try:
-            # point = 'A' + str(cell)
-            # d['number'] = float(sheet[point].value)
-            # номер сами инкрементируем
             d['number'] = number
             number += 1
             point = 'B' + str(cell)
-            d['product_name'] = sheet[point].value.strip()
+            d['product_name'] = str(sheet[point].value.strip())
             point = 'C' + str(cell)
-            d['product_unit'] = sheet[point].value.strip()
+            d['product_unit'] = str(sheet[point].value.strip())
             point = 'D' + str(cell)
             d['product_price'] = float(sheet[point].value)
             data.append(d)
+            number += 1
         except:
             missdata = True
             break
@@ -96,11 +94,7 @@ def save_products(price_file, user):
 
     # теперь активируем или добавим те товары, который в новом прайс-листе
     for item in products:
-        # item['product_name']
-        # item['product_unit']
-        # item['product_price']
         product_unit = ProductUnitType.objects.get_or_create(short=item['product_unit'])
-        
         product_category = ProductCategory.objects.get_or_create(name='Без категории')
 
         if Product.objects.filter(user=user).filter(title=item['product_name']):
