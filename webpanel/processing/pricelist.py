@@ -49,18 +49,18 @@ def get_data(price_file=''):
     if sheet.max_row < 4 or sheet.max_column < 4:
         return False, data
 
-    
+    number = 1
     for cell in range(4, sheet.max_row + 1):
         d = {}
-        number = 1
         try:
             d['number'] = number
+            print(d['number'])
             point = 'B' + str(cell)
             d['product_name'] = str(sheet[point].value.strip())
             point = 'C' + str(cell)
             d['product_unit'] = str(sheet[point].value.strip())
             point = 'D' + str(cell)
-            d['product_price'] = float(sheet[point].value.strip())
+            d['product_price'] = float(sheet[point].value)
             data.append(d)
             number += 1
         except:
@@ -93,8 +93,6 @@ def save_products(price_file, user):
 
     # теперь активируем или добавим те товары, который в новом прайс-листе
     for item in products:
-        product_unit = ProductUnitType.objects.get_or_create(short=item['product_unit'])
-        product_category = ProductCategory.objects.get_or_create(name='Без категории')
 
         if Product.objects.filter(user=user).filter(title=item['product_name']):
             p = Product.objects.filter(user=user).get(title=item['product_name'])
@@ -102,11 +100,13 @@ def save_products(price_file, user):
             p.is_active = True
             p.save()
         else:
+            product_unit, _ = ProductUnitType.objects.get_or_create(short=item['product_unit'])
+            product_category, _ = ProductCategory.objects.get_or_create(name='Без категории')
             Product(
                 title=item['product_name'],
                 user=user,
-                unit = product_unit[0],
-                category = product_category[0],
+                unit = product_unit,
+                category = product_category,
                 price = item['product_price'],
                 is_active = True
             ).save()
