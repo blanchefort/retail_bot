@@ -1,6 +1,7 @@
 """парсинг прайс-листов
 """
 import os
+import requests
 import openpyxl
 from django.conf import settings
 from webpanel.models.product import Product
@@ -77,6 +78,29 @@ def get_data(price_file=''):
 
     return True, data
 
+def get_product_category_batch(data=[]):
+    """Получаем категории товаров у модели
+    """
+    product_names = [item['product_name'] for item in data]
+    query = {
+        'api_key': settings.CATEGORY_CLASSIFIER_API_KEY,
+        'items': product_names
+    }
+    result = requests.post(settings.CATEGORY_CLASSIFIER_URL, json=query)
+    if result.status_code != 200:
+        rerurn False, []
+    
+    result = result.json()
+    upated_data = []
+    for item_in, item_cat in zip(data, result):
+        upated_data.append({
+                    'number': item_in['number'],
+                    'product_name': item_in['product_name'],
+                    'product_unit': item_in['product_unit'],
+                    'product_price': item_in['product_price'],
+                    'product_category': item_cat['label']
+                })
+    return True, upated_data
 
 def save_products(price_file, user):
     """Сохранение товаров из прайс-листа в БД
@@ -86,6 +110,7 @@ def save_products(price_file, user):
     user (django.contrib.auth.models.User) - модель пользователя, к которому привязываются товары
     """
     _, products = get_data(price_file=price_file)
+    _, products = get_product_category_batch(data=products)
 
     # Сначала установим все товары данного пользователя неактивными
     Product.objects.filter(user=user).update(is_active=False)
@@ -100,7 +125,7 @@ def save_products(price_file, user):
             p.save()
         else:
             product_unit, _ = ProductUnitType.objects.get_or_create(short=item['product_unit'])
-            product_category, _ = ProductCategory.objects.get_or_create(name='Без категории')
+            product_category, _ = ProductCategory.objects.get_or_create(name=item['product_category'])
             Product(
                 title=item['product_name'],
                 user=user,

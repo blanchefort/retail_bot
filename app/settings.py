@@ -171,3 +171,7 @@ TELEGRAM_TOKEN = '904927923:AAHzHA4ae-kvJcTVum_PGWhnRE1rABadKVY'
 TELEGRAM_PROXY_URL = 'http://telegg.ru/orig/bot'
 
 TELEGRAM_SCHEDULE_TIME = 60
+
+# Путь до модели, определяющей категории товаров
+CATEGORY_CLASSIFIER_URL = 'http://35.225.239.24:8884/predict'
+CATEGORY_CLASSIFIER_API_KEY = '9673e7ba-2499-4460-9371-fd65f513a066'
