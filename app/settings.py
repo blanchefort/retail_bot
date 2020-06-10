@@ -105,7 +105,7 @@ else:
             'PORT': '5432',
             'NAME': 'postgres',
             'USER': 'postgres',
-            'PASSWORD': 'postgres'
+            'PASSWORD': '123123'
         }
     }
 
