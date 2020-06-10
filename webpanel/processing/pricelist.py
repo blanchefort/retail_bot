@@ -88,7 +88,7 @@ def get_product_category_batch(data=[]):
     }
     result = requests.post(settings.CATEGORY_CLASSIFIER_URL, json=query)
     if result.status_code != 200:
-        rerurn False, []
+        return False, []
     
     result = result.json()
     upated_data = []
