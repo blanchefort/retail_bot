@@ -90,14 +90,22 @@ else:
     # server
     DATABASES = {
         'default': {
+            # # django.db.backends.postgresql
+            # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            # # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
+            # 'HOST': '10.33.80.3',
+            # 'PORT': '5432',
+            # 'NAME': 'retail_test',
+            # 'USER': 'postgres',
+            # 'PASSWORD': 'supply2020'
             # django.db.backends.postgresql
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
-            'HOST': '10.33.80.3',
+            'HOST': 'localhost',
             'PORT': '5432',
-            'NAME': 'retail_test',
-            'USER': 'postgres',
-            'PASSWORD': 'supply2020'
+            'NAME': 'retailbot',
+            'USER': 'retailbot',
+            'PASSWORD': ''
         }
     }
 
