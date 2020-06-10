@@ -103,9 +103,9 @@ else:
             # '/cloudsql/PROJECT-ID:COMPUTE-ENGINE-ZONE:DATABASE-NAME'
             'HOST': 'localhost',
             'PORT': '5432',
-            'NAME': 'retailbot',
-            'USER': 'retailbot',
-            'PASSWORD': ''
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres'
         }
     }
 
