@@ -392,8 +392,10 @@ def download_order_as_xsls(request, user_id):
         raise PermissionDenied
     
     # Список заказа
+    # order = Order.objects.filter(product__user=request.user
+    #     ).filter(status=1
+    #     ).filter(user=user_id)
     order = Order.objects.filter(product__user=request.user
-        ).filter(status=1
         ).filter(user=user_id)
     
     if len(order) > 0:
