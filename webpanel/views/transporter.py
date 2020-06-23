@@ -54,10 +54,9 @@ def about(request, order_number):
 
     # проверяем, можем ли мы показать эту заявку данному пользователю
     order = Order.objects.filter(order_number=order_number)
-    # delivery = Delivery.objects.filter(order_number=order_number).filter(user=request.user)
+    delivery = Delivery.objects.filter(order_number=order_number).filter(user=request.user)
 
-    # if delivery.count() > 0 and order.count() > 0:
-    if order.count() > 0:
+    if delivery.count() == 0 and order.count() > 0:
         context.update({'creation_date': order.last().creation_date})
         context.update({'bill_date': order.last().bill_date})
         context.update({'delivery_from': order.last().product.user.profile.address})
@@ -89,7 +88,8 @@ def confirmed_order(request, order_number):
     if request.POST:
         # новый заказ выбран транспортником на подтверждение
         order = Order.objects.filter(status=4).filter(order_number=order_number)
-        if order.count() > 0:
+        delivery = Delivery.objects.filter(order_number=order_number).filter(user=request.user)
+        if delivery.count() == 0 and order.count() > 0:
             # заказ открыт, оформляем его на транспортника
             form = ConfirmTransporterForm(data=request.POST)
             if form.is_valid():
