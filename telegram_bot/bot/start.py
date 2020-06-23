@@ -148,7 +148,7 @@ class StartBot(object):
     def _system_messages_handler(self, context):
         """Отправляем сообщения от администрации сервера,
         """
-        messages = Messages.objects.filter(reseived_flag=None)
+        messages = Messages.objects.filter(reseived_flag=0)
         for m in messages:
             context.bot.send_message(
                 chat_id=m.chat_id,
