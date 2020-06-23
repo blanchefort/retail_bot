@@ -128,7 +128,7 @@ class StartBot(object):
             b.save()
         
         # Отправляем стоимость доставки от транспортника
-        bills = Delivery.objects.filter(reseived_flag=0)
+        bills = Delivery.objects.filter(reseived_flag=None)
         for b in bills:
             message = f'Здравствуйте! Ваш заказ №{b.order_number} принят службой доставки.'
             message += f'\nСтоимость доставки составит {b.amount}₸.'
