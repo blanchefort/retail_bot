@@ -93,7 +93,8 @@ class Search(object):
 
         update.message.reply_text(
             message,
-            parse_mode=ParseMode.MARKDOWN)
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     @save_query
     def _add_to_order(self, update, context) -> None:
