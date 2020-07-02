@@ -99,7 +99,8 @@ class Order(object):
             message += f'\nВсего позиций: {order_count}'
             update.message.reply_text(
                 message,
-                parse_mode=ParseMode.MARKDOWN)
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
             for item in order:
                 message = f'\n\n📦 <b>{item.product.title}</b>'
