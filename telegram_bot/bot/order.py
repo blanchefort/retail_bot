@@ -164,7 +164,8 @@ class Order(object):
                 reply_markup=ReplyKeyboardMarkup(menu_kb()),
                 parse_mode=ParseMode.MARKDOWN)
         else:
-            update.message.reply_text('Ваша заявка пуста. Нечего отправлять.')
+            update.message.reply_text('Ваша заявка пуста. Нечего отправлять.',
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     @save_query
     def _delete_order(self, update, context) -> None:
@@ -181,7 +182,8 @@ class Order(object):
                 'Заявка удалена.',
                 reply_markup=ReplyKeyboardMarkup(menu_kb()))
         else:
-            update.message.reply_text('Ваша заявка пуста. Нечего удалять.')
+            update.message.reply_text('Ваша заявка пуста. Нечего удалять.',
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
 
     @save_query
     def _order_list(self, update, context) -> None:

@@ -274,7 +274,7 @@ class Commands(object):
         else:
             message = 'Введён некорректный адрес почты. Попробуйте заново: /register'
 
-        update.message.reply_text(message)
+        update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(menu_kb()))
         return ConversationHandler.END
 
     #@save_query
@@ -314,4 +314,5 @@ class Commands(object):
 
         query.edit_message_text(
             message,
-            parse_mode=ParseMode.MARKDOWN)
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=ReplyKeyboardMarkup(menu_kb()))

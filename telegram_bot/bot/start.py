@@ -16,6 +16,7 @@ from .commands import Commands
 from .search import Search
 from .order import Order
 from .catalog import Catalog
+from .menu import menu_kb
 
 from webpanel.models.seller_bill import SellerBill
 from webpanel.models.transporter_bill import Delivery
@@ -122,7 +123,8 @@ class StartBot(object):
             message += '\n Сделать это можно с помощью команды /address'
             context.bot.send_message(
                 chat_id=b.user.profile.telegram_id,
-                text=message)
+                text=message,
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
             
             b.reseived_flag = 1
             b.save()
@@ -139,7 +141,8 @@ class StartBot(object):
 
             context.bot.send_message(
                 chat_id=sb.user.profile.telegram_id,
-                text=message)
+                text=message,
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
             
             b.reseived_flag = 1
             b.save()
@@ -153,6 +156,7 @@ class StartBot(object):
             context.bot.send_message(
                 chat_id=m.chat_id,
                 text=m.message,
-                parse_mode=ParseMode.MARKDOWN)
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=ReplyKeyboardMarkup(menu_kb()))
             m.reseived_flag = 1
             m.save()
